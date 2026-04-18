@@ -1,0 +1,42 @@
+[
+  {
+    "id": "company-001",
+    "taxId": "30-71000001-5",
+    "name": "Andes Textiles SA",
+    "type": "PYME",
+    "registrationDate": "2026-03-28T10:00:00.000Z",
+    "country": "AR"
+  },
+  {
+    "id": "company-002",
+    "taxId": "30-71000002-3",
+    "name": "Patagonia Foods SRL",
+    "type": "CORPORATIVA",
+    "registrationDate": "2026-03-05T09:30:00.000Z",
+    "country": "AR"
+  },
+  {
+    "id": "company-003",
+    "taxId": "30-71000003-1",
+    "name": "Sur Logistics SA",
+    "type": "CORPORATIVA",
+    "registrationDate": "2026-01-20T14:20:00.000Z",
+    "country": "AR"
+  },
+  {
+    "id": "company-004",
+    "taxId": "30-71000004-0",
+    "name": "Norte Metalworks",
+    "type": "PYME",
+    "registrationDate": "2026-04-10T08:15:00.000Z",
+    "country": "AR"
+  },
+  {
+    "id": "company-005",
+    "taxId": "30-71000005-8",
+    "name": "Pampa Retail SA",
+    "type": "PYME",
+    "registrationDate": "2025-12-01T11:45:00.000Z",
+    "country": "AR"
+  }
+]

@@ -1,0 +1,58 @@
+[
+  {
+    "id": "transfer-001",
+    "amount": 1200.5,
+    "companyId": "company-001",
+    "date": "2026-04-16T13:10:00.000Z",
+    "status": "COMPLETED"
+  },
+  {
+    "id": "transfer-002",
+    "amount": 800,
+    "companyId": "company-001",
+    "date": "2026-04-08T16:00:00.000Z",
+    "status": "COMPLETED"
+  },
+  {
+    "id": "transfer-003",
+    "amount": 6400,
+    "companyId": "company-002",
+    "date": "2026-04-12T09:00:00.000Z",
+    "status": "COMPLETED"
+  },
+  {
+    "id": "transfer-004",
+    "amount": 1500,
+    "companyId": "company-002",
+    "date": "2026-03-10T10:00:00.000Z",
+    "status": "COMPLETED"
+  },
+  {
+    "id": "transfer-005",
+    "amount": 500,
+    "companyId": "company-003",
+    "date": "2026-04-09T12:30:00.000Z",
+    "status": "PENDING"
+  },
+  {
+    "id": "transfer-006",
+    "amount": 2100,
+    "companyId": "company-003",
+    "date": "2026-03-30T18:05:00.000Z",
+    "status": "FAILED"
+  },
+  {
+    "id": "transfer-007",
+    "amount": 1900,
+    "companyId": "company-004",
+    "date": "2026-04-17T07:40:00.000Z",
+    "status": "COMPLETED"
+  },
+  {
+    "id": "transfer-008",
+    "amount": 3000,
+    "companyId": "company-005",
+    "date": "2026-02-20T15:20:00.000Z",
+    "status": "COMPLETED"
+  }
+]
