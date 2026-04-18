@@ -32,6 +32,10 @@ export class FileStorage {
   }
 
   private resolvePath(filePath: string): string {
-    return path.join(process.cwd(), filePath);
+    const dataDir = process.env.DATA_DIR ?? 'data';
+    const absoluteBase = path.isAbsolute(dataDir)
+      ? dataDir
+      : path.join(process.cwd(), dataDir);
+    return path.join(absoluteBase, filePath);
   }
 }

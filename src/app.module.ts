@@ -1,18 +1,21 @@
 import { Module } from '@nestjs/common';
+import { GetCompaniesWithTransfersLastMonthUseCase } from './application/use-cases/get-companies-with-transfers-last-month.use-case';
 import { COMPANY_REPOSITORY } from './domain/ports/company-repository.port';
 import { TRANSFER_REPOSITORY } from './domain/ports/transfer-repository.port';
 import { HealthController } from './health.controller';
+import { CompaniesController } from './infrastructure/http/controllers/companies.controller';
 import { FileStorage } from './infrastructure/persistence/file-storage';
 import { JsonCompanyRepository } from './infrastructure/persistence/json-company.repository';
 import { JsonTransferRepository } from './infrastructure/persistence/json-transfer.repository';
 
 @Module({
   imports: [],
-  controllers: [HealthController],
+  controllers: [HealthController, CompaniesController],
   providers: [
     FileStorage,
     JsonCompanyRepository,
     JsonTransferRepository,
+    GetCompaniesWithTransfersLastMonthUseCase,
     {
       provide: COMPANY_REPOSITORY,
       useExisting: JsonCompanyRepository,

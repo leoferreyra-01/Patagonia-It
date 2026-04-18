@@ -13,7 +13,7 @@ type TransferRecord = {
 
 @Injectable()
 export class JsonTransferRepository implements TransferRepository {
-  private readonly filePath = 'data/transfers.json';
+  private readonly filePath = 'transfers.json';
 
   constructor(private readonly storage: FileStorage) {}
 

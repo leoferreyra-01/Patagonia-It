@@ -14,7 +14,7 @@ type CompanyRecord = {
 
 @Injectable()
 export class JsonCompanyRepository implements CompanyRepository {
-  private readonly filePath = 'data/companies.json';
+  private readonly filePath = 'companies.json';
 
   constructor(private readonly storage: FileStorage) {}
 
