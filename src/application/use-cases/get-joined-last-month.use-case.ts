@@ -5,6 +5,7 @@ import {
   COMPANY_REPOSITORY,
   CompanyRepository,
 } from '../../domain/ports/company-repository.port';
+import { PersistenceError } from '../../infrastructure/errors/persistence.error';
 
 @Injectable()
 export class GetJoinedLastMonthUseCase {
@@ -27,7 +28,11 @@ export class GetJoinedLastMonthUseCase {
       return companies.sort(
         (a, b) => b.registrationDate.getTime() - a.registrationDate.getTime(),
       );
-    } catch {
+    } catch (error) {
+      if (error instanceof PersistenceError) {
+        throw error;
+      }
+
       throw new InternalServerErrorException({
         code: ERROR_CATALOG.JOINED_LAST_MONTH_FETCH_FAILED.code,
         message: ERROR_CATALOG.JOINED_LAST_MONTH_FETCH_FAILED.message,

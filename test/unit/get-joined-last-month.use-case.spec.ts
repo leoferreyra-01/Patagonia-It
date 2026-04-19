@@ -1,6 +1,7 @@
 import { Company, CompanyType } from '../../src/domain/entities/company.entity';
 import { InternalServerErrorException } from '@nestjs/common';
 import { ERROR_CATALOG } from '../../src/domain/errors/error-codes';
+import { PersistenceError } from '../../src/infrastructure/errors/persistence.error';
 import { CompanyRepository } from '../../src/domain/ports/company-repository.port';
 import { GetJoinedLastMonthUseCase } from '../../src/application/use-cases/get-joined-last-month.use-case';
 
@@ -98,5 +99,19 @@ describe('GetJoinedLastMonthUseCase', () => {
         statusCode: ERROR_CATALOG.JOINED_LAST_MONTH_FETCH_FAILED.status,
       });
     }
+  });
+
+  it('rethrows retryable persistence errors without masking their code', async () => {
+    const repo = makeRepository([]);
+    repo.findByRegistrationDateRange = jest.fn(async () => {
+      throw PersistenceError.read('companies.json', new Error('disk unavailable'));
+    });
+
+    await expect(new GetJoinedLastMonthUseCase(repo).execute(referenceDate)).rejects.toMatchObject({
+      code: ERROR_CATALOG.PERSISTENCE_READ_FAILED.code,
+      message: ERROR_CATALOG.PERSISTENCE_READ_FAILED.message,
+      statusCode: ERROR_CATALOG.PERSISTENCE_READ_FAILED.status,
+      retryable: true,
+    });
   });
 });

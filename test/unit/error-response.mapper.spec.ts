@@ -4,6 +4,7 @@ import {
   HttpException,
 } from '@nestjs/common';
 import { ERROR_CATALOG } from '../../src/domain/errors/error-codes';
+import { PersistenceError } from '../../src/infrastructure/errors/persistence.error';
 import { mapErrorToResponse } from '../../src/infrastructure/http/utils/error-response.mapper';
 
 describe('mapErrorToResponse', () => {
@@ -72,6 +73,26 @@ describe('mapErrorToResponse', () => {
       code: 'INTERNAL_SERVER_ERROR',
       message: 'Upstream exploded',
       statusCode: 502,
+    });
+  });
+
+  it('maps retryable persistence read errors to a deterministic 503 response', () => {
+    const error = PersistenceError.read('companies.json', new Error('disk unavailable'));
+
+    expect(mapErrorToResponse(error)).toEqual({
+      code: ERROR_CATALOG.PERSISTENCE_READ_FAILED.code,
+      message: ERROR_CATALOG.PERSISTENCE_READ_FAILED.message,
+      statusCode: ERROR_CATALOG.PERSISTENCE_READ_FAILED.status,
+    });
+  });
+
+  it('maps invalid persisted data errors to a deterministic 500 response', () => {
+    const error = PersistenceError.invalidData('companies.json');
+
+    expect(mapErrorToResponse(error)).toEqual({
+      code: ERROR_CATALOG.PERSISTED_DATA_INVALID.code,
+      message: ERROR_CATALOG.PERSISTED_DATA_INVALID.message,
+      statusCode: ERROR_CATALOG.PERSISTED_DATA_INVALID.status,
     });
   });
 

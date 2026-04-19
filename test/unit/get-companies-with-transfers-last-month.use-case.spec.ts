@@ -4,6 +4,7 @@ import {
 } from '../../src/domain/entities/company.entity';
 import { InternalServerErrorException } from '@nestjs/common';
 import { ERROR_CATALOG } from '../../src/domain/errors/error-codes';
+import { PersistenceError } from '../../src/infrastructure/errors/persistence.error';
 import {
   Transfer,
   TransferStatus,
@@ -233,5 +234,40 @@ describe('GetCompaniesWithTransfersLastMonthUseCase', () => {
         statusCode: ERROR_CATALOG.WITH_TRANSFERS_LAST_MONTH_FETCH_FAILED.status,
       });
     }
+  });
+
+  it('rethrows retryable persistence errors without masking their code', async () => {
+    const companyRepository: CompanyRepository = {
+      findAll: jest.fn(),
+      findById: jest.fn(),
+      findByType: jest.fn(),
+      findByTypeAndCountry: jest.fn(),
+      findByTaxId: jest.fn(),
+      findByRegistrationDateRange: jest.fn(),
+      save: jest.fn(),
+      update: jest.fn(),
+      delete: jest.fn(),
+    };
+
+    const transferRepository: TransferRepository = {
+      save: jest.fn(),
+      findByCompanyId: jest.fn(),
+      findByDateRange: jest.fn(async () => {
+        throw PersistenceError.read('transfers.json', new Error('storage offline'));
+      }),
+      findByCompanyIdAndDateRange: jest.fn(),
+    };
+
+    const useCase = new GetCompaniesWithTransfersLastMonthUseCase(
+      companyRepository,
+      transferRepository,
+    );
+
+    await expect(useCase.execute(new Date('2026-04-18T00:00:00.000Z'))).rejects.toMatchObject({
+      code: ERROR_CATALOG.PERSISTENCE_READ_FAILED.code,
+      message: ERROR_CATALOG.PERSISTENCE_READ_FAILED.message,
+      statusCode: ERROR_CATALOG.PERSISTENCE_READ_FAILED.status,
+      retryable: true,
+    });
   });
 });

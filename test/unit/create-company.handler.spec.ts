@@ -106,4 +106,23 @@ describe('create-company Lambda handler', () => {
     expect(response.statusCode).toBe(400);
     expect(response.body).toContain('taxId format must be NN-NNNNNNNN-N');
   });
+
+  it('returns 500 with deterministic code when persisted data is invalid', async () => {
+    await fs.writeFile(path.join(dataDir, 'companies.json'), '{bad-json}', 'utf-8');
+
+    const response = await handler({
+      body: JSON.stringify({
+        taxId: '30-99999999-7',
+        name: 'Broken Storage Co',
+        type: 'PYME',
+      }),
+    });
+
+    expect(response.statusCode).toBe(500);
+    expect(JSON.parse(response.body)).toEqual({
+      code: 'PERSISTED_DATA_INVALID',
+      message: 'Persisted data is invalid',
+      statusCode: 500,
+    });
+  });
 });

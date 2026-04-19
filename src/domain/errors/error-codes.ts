@@ -1,3 +1,10 @@
+export type ErrorCatalogEntry = {
+  code: string;
+  status: number;
+  message: string;
+  retryable?: boolean;
+};
+
 export const ERROR_CATALOG = {
   REQUEST_BODY_REQUIRED: {
     code: 'REQUEST_BODY_REQUIRED',
@@ -44,6 +51,24 @@ export const ERROR_CATALOG = {
     status: 500,
     message: 'Failed to fetch companies with transfers in the last month',
   },
+  PERSISTENCE_READ_FAILED: {
+    code: 'PERSISTENCE_READ_FAILED',
+    status: 503,
+    message: 'Failed to read persisted data',
+    retryable: true,
+  },
+  PERSISTENCE_WRITE_FAILED: {
+    code: 'PERSISTENCE_WRITE_FAILED',
+    status: 503,
+    message: 'Failed to persist data',
+    retryable: true,
+  },
+  PERSISTED_DATA_INVALID: {
+    code: 'PERSISTED_DATA_INVALID',
+    status: 500,
+    message: 'Persisted data is invalid',
+    retryable: false,
+  },
   COMPANY_TAX_ID_ALREADY_EXISTS: {
     code: 'COMPANY_TAX_ID_ALREADY_EXISTS',
     status: 409,
@@ -54,6 +79,6 @@ export const ERROR_CATALOG = {
     status: 500,
     message: 'Unexpected error creating company',
   },
-} as const;
+} as const satisfies Record<string, ErrorCatalogEntry>;
 
 export type ErrorCatalogKey = keyof typeof ERROR_CATALOG;

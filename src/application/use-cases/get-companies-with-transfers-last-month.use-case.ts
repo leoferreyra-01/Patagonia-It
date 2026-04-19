@@ -10,6 +10,7 @@ import {
   TRANSFER_REPOSITORY,
   TransferRepository,
 } from '../../domain/ports/transfer-repository.port';
+import { PersistenceError } from '../../infrastructure/errors/persistence.error';
 
 export type CompanyWithTransferSummary = {
   id: string;
@@ -102,7 +103,11 @@ export class GetCompaniesWithTransfersLastMonthUseCase {
       return response.sort(
         (a, b) => b.totalTransferredAmountLastMonth - a.totalTransferredAmountLastMonth,
       );
-    } catch {
+    } catch (error) {
+      if (error instanceof PersistenceError) {
+        throw error;
+      }
+
       throw new InternalServerErrorException({
         code: ERROR_CATALOG.WITH_TRANSFERS_LAST_MONTH_FETCH_FAILED.code,
         message: ERROR_CATALOG.WITH_TRANSFERS_LAST_MONTH_FETCH_FAILED.message,

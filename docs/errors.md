@@ -2,12 +2,13 @@
 
 ## Objetivo
 
-Definir un lenguaje comun para errores del sistema, aunque la respuesta HTTP actual todavia use principalmente el formato por defecto de NestJS.
+Definir un lenguaje comun para errores del sistema con una respuesta uniforme entre API y Lambda.
 
 ## Criterio general
 
 - Errores de entrada invalida: `400`
 - Conflictos de negocio: `409`
+- Fallas retryable de persistencia: `503`
 - Errores inesperados: `500`
 
 ## Catalogo inicial
@@ -52,6 +53,21 @@ Definir un lenguaje comun para errores del sistema, aunque la respuesta HTTP act
 - Mensaje: `Failed to fetch companies with transfers in the last month`
 - Uso: endpoint `GET /api/companies/with-transfers/last-month` ante fallas inesperadas de lectura
 
+### PERSISTENCE_READ_FAILED
+- Estado: `503`
+- Mensaje: `Failed to read persisted data`
+- Uso: fallas retryable al leer archivos/repositorios
+
+### PERSISTENCE_WRITE_FAILED
+- Estado: `503`
+- Mensaje: `Failed to persist data`
+- Uso: fallas retryable al escribir archivos/repositorios
+
+### PERSISTED_DATA_INVALID
+- Estado: `500`
+- Mensaje: `Persisted data is invalid`
+- Uso: archivos existentes con JSON invalido o estructura inesperada
+
 ### COMPANY_TAX_ID_ALREADY_EXISTS
 - Estado: `409`
 - Mensaje base: `Company with taxId %s already exists`
@@ -64,31 +80,9 @@ Definir un lenguaje comun para errores del sistema, aunque la respuesta HTTP act
 
 ### API NestJS
 
-Hoy la API devuelve el formato por defecto de NestJS para excepciones HTTP.
+Hoy la API y la Lambda devuelven el mismo contrato de error estandarizado.
 
 Ejemplo de validacion/logica:
-
-```json
-{
-  "message": "taxId format must be NN-NNNNNNNN-N",
-  "error": "Bad Request",
-  "statusCode": 400
-}
-```
-
-### Lambda
-
-Hoy la Lambda devuelve una respuesta simplificada:
-
-```json
-{
-  "message": "Company with taxId 30-12345678-9 already exists"
-}
-```
-
-## Siguiente evolucion recomendada
-
-En la siguiente fase de contratos/endpoints, se recomienda estandarizar una respuesta de error explicita:
 
 ```json
 {
@@ -98,4 +92,18 @@ En la siguiente fase de contratos/endpoints, se recomienda estandarizar una resp
 }
 ```
 
-Esto dejaria alineados API y Lambda bajo la misma taxonomia.
+Ejemplo de falla retryable de persistencia:
+
+```json
+{
+  "code": "PERSISTENCE_READ_FAILED",
+  "message": "Failed to read persisted data",
+  "statusCode": 503
+}
+```
+
+## Clasificacion operativa
+
+- `retryable: true` aplica a fallas de lectura/escritura de persistencia donde un reintento puede resolver el problema.
+- `retryable: false` aplica a datos persistidos corruptos o inconsistentes, donde hace falta intervencion operativa.
+- El atributo de retryabilidad se mantiene en la taxonomia interna y hoy no se expone en el body HTTP.

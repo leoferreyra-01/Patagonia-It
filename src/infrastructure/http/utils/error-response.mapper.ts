@@ -3,6 +3,7 @@ import {
   InternalServerErrorException,
 } from '@nestjs/common';
 import { ERROR_CATALOG } from '../../../domain/errors/error-codes';
+import { PersistenceError } from '../../errors/persistence.error';
 
 export type StandardErrorResponse = {
   code: string;
@@ -50,6 +51,14 @@ const inferCodeFromMessage = (
 };
 
 export const mapErrorToResponse = (error: unknown): StandardErrorResponse => {
+  if (error instanceof PersistenceError) {
+    return {
+      code: error.code,
+      message: error.message,
+      statusCode: error.statusCode,
+    };
+  }
+
   if (error instanceof HttpException) {
     const statusCode = error.getStatus();
     const exceptionResponse = error.getResponse();

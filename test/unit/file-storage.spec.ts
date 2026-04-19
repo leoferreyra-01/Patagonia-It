@@ -1,6 +1,8 @@
 import { promises as fs } from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
+import { ERROR_CATALOG } from '../../src/domain/errors/error-codes';
+import { PersistenceError } from '../../src/infrastructure/errors/persistence.error';
 import { FileStorage } from '../../src/infrastructure/persistence/file-storage';
 
 describe('FileStorage', () => {
@@ -23,14 +25,28 @@ describe('FileStorage', () => {
     expect(result).toEqual([]);
   });
 
-  it('throws TypeError when file content is not an array', async () => {
+  it('throws a non-retryable persistence error when file content is not an array', async () => {
     await fs.writeFile(
       path.join(tempDir, 'invalid.json'),
       JSON.stringify({ value: 'not-array' }),
       'utf-8',
     );
 
-    await expect(storage.readArray('invalid.json')).rejects.toThrow(TypeError);
+    await expect(storage.readArray('invalid.json')).rejects.toMatchObject({
+      code: ERROR_CATALOG.PERSISTED_DATA_INVALID.code,
+      message: ERROR_CATALOG.PERSISTED_DATA_INVALID.message,
+      retryable: false,
+    } satisfies Partial<PersistenceError>);
+  });
+
+  it('throws a non-retryable persistence error when file JSON is malformed', async () => {
+    await fs.writeFile(path.join(tempDir, 'malformed.json'), '{bad-json}', 'utf-8');
+
+    await expect(storage.readArray('malformed.json')).rejects.toMatchObject({
+      code: ERROR_CATALOG.PERSISTED_DATA_INVALID.code,
+      message: ERROR_CATALOG.PERSISTED_DATA_INVALID.message,
+      retryable: false,
+    } satisfies Partial<PersistenceError>);
   });
 
   it('writes and reads arrays using atomic temp-file rename', async () => {
