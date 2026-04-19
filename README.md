@@ -36,7 +36,7 @@ npm test
 Para ver logs durante tests (debug):
 
 ```bash
-JEST_SILENT=false npm test -- --runInBand
+JEST_SILENT=false npm run test
 ```
 
 Para coverage

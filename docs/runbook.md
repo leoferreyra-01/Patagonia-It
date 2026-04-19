@@ -121,7 +121,7 @@ Esta matriz define que hacer segun el codigo recibido en el error envelope.
 
 ## Checklist de seguridad para release
 
-1. `npm test` pasa
+1. `npm run test` pasa
 2. `npm run test:cov` cumple el umbral del equipo
 3. Swagger carga y las rutas coinciden con los contratos esperados
 4. Smoke test manual en endpoints de create/list

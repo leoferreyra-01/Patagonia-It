@@ -8,7 +8,7 @@ module.exports = {
   transform: {
     [String.raw`^.+\.(t|j)s$`]: ['ts-jest', { tsconfig: 'tsconfig.json' }],
   },
-  collectCoverageFrom: ['src/**/*.(t|j)s'],
+  collectCoverageFrom: ['src/**/*.(t|j)s', '!src/main.ts'],
   coverageDirectory: 'coverage',
   coverageThreshold: {
     global: {

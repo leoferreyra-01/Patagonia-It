@@ -91,7 +91,7 @@ Causa:
 Acciones:
 
 1. Agregar metodos faltantes en los objetos repository mockeados
-2. Re-ejecutar `npm test -- --runInBand`
+2. Re-ejecutar `npm run test`
 
 ## El coverage bajo de forma inesperada
 

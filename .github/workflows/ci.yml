@@ -58,7 +58,7 @@ jobs:
         run: tar -xzf node-modules.tar.gz
 
       - name: Run unit and e2e tests
-        run: npm test -- --runInBand
+        run: npm run test
 
       - name: Run coverage
         run: npm run test:cov

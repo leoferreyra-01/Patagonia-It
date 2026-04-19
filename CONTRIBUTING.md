@@ -41,7 +41,7 @@ Ejemplos:
 
 ## Checklist antes de abrir PR
 
-1. Ejecutar `npm test -- --runInBand`.
+1. Ejecutar `npm run test`.
 2. Ejecutar `npm run test:cov`.
 3. Ejecutar `npm run build`.
 4. Verificar que Swagger cargue y rutas principales respondan.
