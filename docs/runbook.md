@@ -69,6 +69,37 @@ Las respuestas de validacion incluyen:
 }
 ```
 
+## Respuesta operativa por codigo
+
+Esta matriz define que hacer segun el codigo recibido en el error envelope.
+
+| Codigo | Estado | Retryable | Diagnostico rapido | Accion inmediata |
+| --- | --- | --- | --- | --- |
+| VALIDATION_ERROR | 400 | No | Input invalido en request | Corregir payload y reintentar manualmente |
+| COMPANY_TAX_ID_ALREADY_EXISTS | 409 | No | Conflicto de negocio por taxId existente | Usar taxId nuevo o evitar doble submit |
+| JOINED_LAST_MONTH_FETCH_FAILED | 500 | No | Falla interna del caso de uso (no clasificada) | Revisar logs, traza y causa raiz |
+| WITH_TRANSFERS_LAST_MONTH_FETCH_FAILED | 500 | No | Falla interna del caso de uso (no clasificada) | Revisar logs, traza y causa raiz |
+| PERSISTENCE_READ_FAILED | 503 | Si | Error transitorio al leer persistencia | Reintentar con backoff; verificar permisos/disco |
+| PERSISTENCE_WRITE_FAILED | 503 | Si | Error transitorio al escribir persistencia | Reintentar con backoff; verificar espacio/disco |
+| PERSISTED_DATA_INVALID | 500 | No | JSON o estructura persistida corrupta | Escalar a on-call, restaurar/repair data |
+| READINESS_PERSISTENCE_CHECK_FAILED | 503 | Si | Health readiness no puede validar persistencia | Sacar instancia de rotacion y diagnosticar storage |
+| UNEXPECTED_CREATE_COMPANY_ERROR | 500 | No | Falla no catalogada | Escalar con contexto de correlation id |
+
+### Politica de reintentos recomendada
+
+- Reintentar solo para `503` retryable (`PERSISTENCE_READ_FAILED`, `PERSISTENCE_WRITE_FAILED`, `READINESS_PERSISTENCE_CHECK_FAILED`).
+- Evitar reintentos para `400` y `409`.
+- Para `500` no retryable (`PERSISTED_DATA_INVALID` y errores internos no clasificados), abrir incidente.
+- Estrategia sugerida: hasta 3 intentos con backoff exponencial (por ejemplo 250ms, 500ms, 1000ms).
+
+### Datos minimos para incidentes
+
+- `code`
+- `statusCode`
+- `x-correlation-id`
+- Endpoint afectado
+- Timestamp UTC del primer fallo
+
 ## Chequeos operativos comunes
 
 ### Verificar arranque de API y docs
@@ -94,3 +125,19 @@ Las respuestas de validacion incluyen:
 3. Swagger carga y las rutas coinciden con los contratos esperados
 4. Smoke test manual en endpoints de create/list
 5. No hay cambios inesperados en el formato JSON persistido
+
+## Criterios iniciales de alerta
+
+Estos umbrales son baseline para ambientes no productivos y pueden ajustarse segun trafico real.
+
+- Critica: `READINESS_PERSISTENCE_CHECK_FAILED` en cualquier instancia por mas de 2 minutos.
+- Alta: `PERSISTENCE_READ_FAILED` o `PERSISTENCE_WRITE_FAILED` >= 5 eventos en 5 minutos.
+- Alta: `PERSISTED_DATA_INVALID` >= 1 evento (accion inmediata).
+- Media: `UNEXPECTED_CREATE_COMPANY_ERROR` >= 3 eventos en 10 minutos.
+- Baja: `VALIDATION_ERROR` alto volumen; revisar cliente pero sin incidente de infraestructura.
+
+### Verificacion post-incidente
+
+1. `GET /api/health/ready` vuelve a `200`.
+2. No hay nuevos `503` de persistencia durante 10 minutos.
+3. Endpoints `GET /api/companies` y `POST /api/companies` responden correctamente en smoke test.

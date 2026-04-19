@@ -66,6 +66,18 @@ Chequeos:
 2. Verificar permisos de lectura en el directorio de datos
 3. Ejecutar los unit tests relacionados a repository y use cases
 
+Codigos a observar:
+
+- `JOINED_LAST_MONTH_FETCH_FAILED`
+- `WITH_TRANSFERS_LAST_MONTH_FETCH_FAILED`
+- `PERSISTED_DATA_INVALID`
+- `PERSISTENCE_READ_FAILED`
+
+Decision operativa:
+
+- Si aparece `PERSISTENCE_READ_FAILED` (503): reintentar con backoff y revisar disponibilidad del storage.
+- Si aparece `PERSISTED_DATA_INVALID` (500): detener reintentos y reparar contenido JSON.
+
 ## Fallas de tests luego de cambios de interfaz
 
 Sintomas:
@@ -88,3 +100,22 @@ Chequeos:
 1. Ejecutar `npm run test:cov`
 2. Revisar el reporte de lineas no cubiertas
 3. Agregar tests focalizados en el unit spec correspondiente antes de refactors grandes
+
+## Readiness devuelve 503
+
+Sintomas:
+
+- `GET /api/health/ready` responde `503`
+- Codigo esperado: `READINESS_PERSISTENCE_CHECK_FAILED`
+
+Chequeos:
+
+1. Verificar permisos de lectura/escritura en `DATA_DIR`
+2. Verificar espacio en disco y estado del filesystem
+3. Verificar consistencia JSON en archivos persistidos
+
+Acciones:
+
+1. Sacar instancia de rotacion mientras dure el fallo
+2. Corregir causa de storage
+3. Confirmar recuperacion con `GET /api/health/ready` en `200`
