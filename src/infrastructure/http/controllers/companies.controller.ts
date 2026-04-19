@@ -1,7 +1,18 @@
-import { Controller, Get } from '@nestjs/common';
-import { ApiOkResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
+import { Body, Controller, Get, Post } from '@nestjs/common';
+import {
+  ApiConflictResponse,
+  ApiCreatedResponse,
+  ApiOkResponse,
+  ApiOperation,
+  ApiTags,
+} from '@nestjs/swagger';
+import { CreateCompanyUseCase } from '../../../application/use-cases/create-company.use-case';
 import { GetJoinedLastMonthUseCase } from '../../../application/use-cases/get-joined-last-month.use-case';
 import { GetCompaniesWithTransfersLastMonthUseCase } from '../../../application/use-cases/get-companies-with-transfers-last-month.use-case';
+import {
+  CreateCompanyRequestDto,
+  CreateCompanyResponseDto,
+} from '../dto/create-company.dto';
 import { JoinedLastMonthResponseDto } from '../dto/joined-last-month.dto';
 import { CompaniesWithTransfersLastMonthResponseDto } from '../dto/companies-with-transfers-last-month.dto';
 
@@ -11,6 +22,7 @@ export class CompaniesController {
   constructor(
     private readonly getCompaniesWithTransfersLastMonthUseCase: GetCompaniesWithTransfersLastMonthUseCase,
     private readonly getJoinedLastMonthUseCase: GetJoinedLastMonthUseCase,
+    private readonly createCompanyUseCase: CreateCompanyUseCase,
   ) {}
 
   @Get('with-transfers/last-month')
@@ -51,6 +63,32 @@ export class CompaniesController {
         country: c.country,
         registrationDate: c.registrationDate.toISOString(),
       })),
+    };
+  }
+
+  @Post()
+  @ApiOperation({
+    summary: 'Register a new company',
+  })
+  @ApiCreatedResponse({
+    description: 'Company created successfully',
+    type: CreateCompanyResponseDto,
+  })
+  @ApiConflictResponse({
+    description: 'Company with the same taxId already exists',
+  })
+  async createCompany(
+    @Body() request: CreateCompanyRequestDto,
+  ): Promise<CreateCompanyResponseDto> {
+    const company = await this.createCompanyUseCase.execute(request);
+
+    return {
+      id: company.id,
+      taxId: company.taxId,
+      name: company.name,
+      type: company.type,
+      country: company.country,
+      registrationDate: company.registrationDate.toISOString(),
     };
   }
 }
