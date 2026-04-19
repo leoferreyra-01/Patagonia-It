@@ -1,0 +1,113 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  init:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24.x
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Upload node_modules
+        uses: actions/upload-artifact@v4
+        with:
+          name: node-modules
+          path: node_modules
+          if-no-files-found: error
+
+  test:
+    needs: init
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24.x
+          cache: npm
+
+      - name: Download node_modules
+        uses: actions/download-artifact@v4
+        with:
+          name: node-modules
+          path: node_modules
+
+      - name: Run unit and e2e tests
+        run: npm test -- --runInBand
+
+      - name: Run coverage
+        run: npm run test:cov
+
+  release-gate:
+    needs: test
+    runs-on: ubuntu-latest
+    outputs:
+      valid_tag: ${{ steps.tag_check.outputs.valid_tag }}
+
+    steps:
+      - name: Validate release tag format
+        id: tag_check
+        shell: bash
+        run: |
+          if [[ "${GITHUB_EVENT_NAME}" == "push" && "${GITHUB_REF}" == refs/tags/* ]]; then
+            if [[ "${GITHUB_REF_NAME}" =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+              echo "valid_tag=true" >> "$GITHUB_OUTPUT"
+            else
+              echo "valid_tag=false" >> "$GITHUB_OUTPUT"
+            fi
+          else
+            echo "valid_tag=false" >> "$GITHUB_OUTPUT"
+          fi
+
+  build:
+    needs:
+      - test
+      - release-gate
+    if: ${{ github.event_name == 'push' && (github.ref == 'refs/heads/develop' || github.ref == 'refs/heads/main' || needs.release-gate.outputs.valid_tag == 'true') }}
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24.x
+          cache: npm
+
+      - name: Download node_modules
+        uses: actions/download-artifact@v4
+        with:
+          name: node-modules
+          path: node_modules
+
+      - name: Build
+        run: npm run build
+
+  deploy:
+    needs:
+      - build
+      - release-gate
+    if: ${{ github.event_name == 'push' && (github.ref == 'refs/heads/develop' || github.ref == 'refs/heads/main' || needs.release-gate.outputs.valid_tag == 'true') }}
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Deploy placeholder
+        run: echo "Deploy stage placeholder - no deployment configured yet."

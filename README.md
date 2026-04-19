@@ -45,4 +45,10 @@ npm run test:cov
 - Primeros pasos: [docs/getting-started.md](docs/getting-started.md)
 - Guia operativa: [docs/runbook.md](docs/runbook.md)
 - Resolucion de problemas: [docs/troubleshooting.md](docs/troubleshooting.md)
+- Politica de cambios de API: [docs/api-change-policy.md](docs/api-change-policy.md)
 - Contrato Lambda: [docs/lambda.md](docs/lambda.md)
+
+## Colaboracion
+
+- Guia de contribucion: [CONTRIBUTING.md](CONTRIBUTING.md)
+- Historial de cambios: [CHANGELOG.md](CHANGELOG.md)
