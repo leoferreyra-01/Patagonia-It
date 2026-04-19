@@ -2,6 +2,7 @@ import { Body, Controller, Get, Post } from '@nestjs/common';
 import {
   ApiConflictResponse,
   ApiCreatedResponse,
+  ApiInternalServerErrorResponse,
   ApiOkResponse,
   ApiOperation,
   ApiTags,
@@ -13,6 +14,7 @@ import {
   CreateCompanyRequestDto,
   CreateCompanyResponseDto,
 } from '../dto/create-company.dto';
+import { ErrorResponseDto } from '../dto/error-response.dto';
 import { JoinedLastMonthResponseDto } from '../dto/joined-last-month.dto';
 import { CompaniesWithTransfersLastMonthResponseDto } from '../dto/companies-with-transfers-last-month.dto';
 
@@ -33,6 +35,10 @@ export class CompaniesController {
     description: 'List of companies with transfer summary for the last month',
     type: CompaniesWithTransfersLastMonthResponseDto,
   })
+  @ApiInternalServerErrorResponse({
+    description: 'Unexpected failure while fetching transfer summary',
+    type: ErrorResponseDto,
+  })
   async getCompaniesWithTransfersLastMonth(): Promise<CompaniesWithTransfersLastMonthResponseDto> {
     const items = await this.getCompaniesWithTransfersLastMonthUseCase.execute();
 
@@ -49,6 +55,10 @@ export class CompaniesController {
   @ApiOkResponse({
     description: 'List of companies registered in the last 30 days, sorted by registration date descending',
     type: JoinedLastMonthResponseDto,
+  })
+  @ApiInternalServerErrorResponse({
+    description: 'Unexpected failure while fetching recently joined companies',
+    type: ErrorResponseDto,
   })
   async getJoinedLastMonth(): Promise<JoinedLastMonthResponseDto> {
     const companies = await this.getJoinedLastMonthUseCase.execute();

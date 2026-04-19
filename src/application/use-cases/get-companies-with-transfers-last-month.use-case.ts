@@ -1,5 +1,6 @@
-import { Inject, Injectable } from '@nestjs/common';
+import { Inject, Injectable, InternalServerErrorException } from '@nestjs/common';
 import { CompanyType } from '../../domain/entities/company.entity';
+import { ERROR_CATALOG } from '../../domain/errors/error-codes';
 import { TransferStatus } from '../../domain/entities/transfer.entity';
 import {
   COMPANY_REPOSITORY,
@@ -32,73 +33,81 @@ export class GetCompaniesWithTransfersLastMonthUseCase {
   ) {}
 
   async execute(referenceDate: Date = new Date()): Promise<CompanyWithTransferSummary[]> {
-    const endDate = referenceDate;
-    const startDate = new Date(referenceDate);
-    startDate.setDate(startDate.getDate() - 30);
+    try {
+      const endDate = referenceDate;
+      const startDate = new Date(referenceDate);
+      startDate.setDate(startDate.getDate() - 30);
 
-    const transfers = await this.transferRepository.findByDateRange(startDate, endDate);
-    const completedTransfers = transfers.filter(
-      (transfer) => transfer.status === TransferStatus.COMPLETED,
-    );
+      const transfers = await this.transferRepository.findByDateRange(startDate, endDate);
+      const completedTransfers = transfers.filter(
+        (transfer) => transfer.status === TransferStatus.COMPLETED,
+      );
 
-    const summaryByCompanyId = new Map<
-      string,
-      { count: number; totalAmount: number; lastDate: Date }
-    >();
+      const summaryByCompanyId = new Map<
+        string,
+        { count: number; totalAmount: number; lastDate: Date }
+      >();
 
-    for (const transfer of completedTransfers) {
-      const current = summaryByCompanyId.get(transfer.companyId);
-      if (!current) {
+      for (const transfer of completedTransfers) {
+        const current = summaryByCompanyId.get(transfer.companyId);
+        if (!current) {
+          summaryByCompanyId.set(transfer.companyId, {
+            count: 1,
+            totalAmount: transfer.amount,
+            lastDate: transfer.date,
+          });
+          continue;
+        }
+
         summaryByCompanyId.set(transfer.companyId, {
-          count: 1,
-          totalAmount: transfer.amount,
-          lastDate: transfer.date,
+          count: current.count + 1,
+          totalAmount: current.totalAmount + transfer.amount,
+          lastDate: new Date(
+            Math.max(transfer.date.getTime(), current.lastDate.getTime()),
+          ),
         });
-        continue;
       }
 
-      summaryByCompanyId.set(transfer.companyId, {
-        count: current.count + 1,
-        totalAmount: current.totalAmount + transfer.amount,
-        lastDate: new Date(
-          Math.max(transfer.date.getTime(), current.lastDate.getTime()),
+      const companies = await Promise.all(
+        Array.from(summaryByCompanyId.keys()).map((companyId) =>
+          this.companyRepository.findById(companyId),
         ),
-      });
-    }
+      );
 
-    const companies = await Promise.all(
-      Array.from(summaryByCompanyId.keys()).map((companyId) =>
-        this.companyRepository.findById(companyId),
-      ),
-    );
+      const response: CompanyWithTransferSummary[] = [];
 
-    const response: CompanyWithTransferSummary[] = [];
+      for (const company of companies) {
+        if (!company) {
+          continue;
+        }
 
-    for (const company of companies) {
-      if (!company) {
-        continue;
+        const summary = summaryByCompanyId.get(company.id);
+        if (!summary) {
+          continue;
+        }
+
+        response.push({
+          id: company.id,
+          taxId: company.taxId,
+          name: company.name,
+          type: company.type,
+          country: company.country,
+          registrationDate: company.registrationDate.toISOString(),
+          transfersInLastMonth: summary.count,
+          totalTransferredAmountLastMonth: summary.totalAmount,
+          lastTransferDate: summary.lastDate.toISOString(),
+        });
       }
 
-      const summary = summaryByCompanyId.get(company.id);
-      if (!summary) {
-        continue;
-      }
-
-      response.push({
-        id: company.id,
-        taxId: company.taxId,
-        name: company.name,
-        type: company.type,
-        country: company.country,
-        registrationDate: company.registrationDate.toISOString(),
-        transfersInLastMonth: summary.count,
-        totalTransferredAmountLastMonth: summary.totalAmount,
-        lastTransferDate: summary.lastDate.toISOString(),
+      return response.sort(
+        (a, b) => b.totalTransferredAmountLastMonth - a.totalTransferredAmountLastMonth,
+      );
+    } catch {
+      throw new InternalServerErrorException({
+        code: ERROR_CATALOG.WITH_TRANSFERS_LAST_MONTH_FETCH_FAILED.code,
+        message: ERROR_CATALOG.WITH_TRANSFERS_LAST_MONTH_FETCH_FAILED.message,
+        statusCode: ERROR_CATALOG.WITH_TRANSFERS_LAST_MONTH_FETCH_FAILED.status,
       });
     }
-
-    return response.sort(
-      (a, b) => b.totalTransferredAmountLastMonth - a.totalTransferredAmountLastMonth,
-    );
   }
 }

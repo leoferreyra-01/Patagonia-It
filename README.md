@@ -31,3 +31,15 @@ npm run start:dev
 ```bash
 npm test
 ```
+
+For coverage
+
+```bash
+npm run test:cov
+```
+
+## Design docs
+
+- Architecture: [docs/architecture.md](docs/architecture.md)
+- Error catalog: [docs/errors.md](docs/errors.md)
+- Lambda contract: [lambda.md](lambda.md)

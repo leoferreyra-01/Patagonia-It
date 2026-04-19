@@ -1,4 +1,6 @@
 import { Company, CompanyType } from '../../src/domain/entities/company.entity';
+import { InternalServerErrorException } from '@nestjs/common';
+import { ERROR_CATALOG } from '../../src/domain/errors/error-codes';
 import { CompanyRepository } from '../../src/domain/ports/company-repository.port';
 import { GetJoinedLastMonthUseCase } from '../../src/application/use-cases/get-joined-last-month.use-case';
 
@@ -68,5 +70,31 @@ describe('GetJoinedLastMonthUseCase', () => {
     expect(repo.findByRegistrationDateRange).toHaveBeenCalledTimes(1);
     const [start, end] = (repo.findByRegistrationDateRange as jest.Mock).mock.calls[0] as [Date, Date];
     expect(end.getTime() - start.getTime()).toBeCloseTo(30 * 24 * 60 * 60 * 1000, -3);
+  });
+
+  it('throws catalog-backed 500 when repository fails', async () => {
+    const repo = makeRepository([]);
+    repo.findByRegistrationDateRange = jest.fn(async () => {
+      throw new Error('disk failure');
+    });
+
+    await expect(new GetJoinedLastMonthUseCase(repo).execute(referenceDate)).rejects.toBeInstanceOf(
+      InternalServerErrorException,
+    );
+
+    try {
+      await new GetJoinedLastMonthUseCase(repo).execute(referenceDate);
+    } catch (error) {
+      const response = (error as InternalServerErrorException).getResponse() as {
+        code: string;
+        message: string;
+        statusCode: number;
+      };
+      expect(response).toEqual({
+        code: ERROR_CATALOG.JOINED_LAST_MONTH_FETCH_FAILED.code,
+        message: ERROR_CATALOG.JOINED_LAST_MONTH_FETCH_FAILED.message,
+        statusCode: ERROR_CATALOG.JOINED_LAST_MONTH_FETCH_FAILED.status,
+      });
+    }
   });
 });

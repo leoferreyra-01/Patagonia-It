@@ -2,6 +2,8 @@ import {
   Company,
   CompanyType,
 } from '../../src/domain/entities/company.entity';
+import { InternalServerErrorException } from '@nestjs/common';
+import { ERROR_CATALOG } from '../../src/domain/errors/error-codes';
 import {
   Transfer,
   TransferStatus,
@@ -180,5 +182,50 @@ describe('GetCompaniesWithTransfersLastMonthUseCase', () => {
       transfersInLastMonth: 1,
       totalTransferredAmountLastMonth: 500,
     });
+  });
+
+  it('throws catalog-backed 500 when repository fails', async () => {
+    const companyRepository: CompanyRepository = {
+      findAll: jest.fn(),
+      findById: jest.fn(),
+      findByTaxId: jest.fn(),
+      findByRegistrationDateRange: jest.fn(),
+      save: jest.fn(),
+      update: jest.fn(),
+      delete: jest.fn(),
+    };
+
+    const transferRepository: TransferRepository = {
+      save: jest.fn(),
+      findByCompanyId: jest.fn(),
+      findByDateRange: jest.fn(async () => {
+        throw new Error('db read failure');
+      }),
+      findByCompanyIdAndDateRange: jest.fn(),
+    };
+
+    const useCase = new GetCompaniesWithTransfersLastMonthUseCase(
+      companyRepository,
+      transferRepository,
+    );
+
+    await expect(useCase.execute(new Date('2026-04-18T00:00:00.000Z'))).rejects.toBeInstanceOf(
+      InternalServerErrorException,
+    );
+
+    try {
+      await useCase.execute(new Date('2026-04-18T00:00:00.000Z'));
+    } catch (error) {
+      const response = (error as InternalServerErrorException).getResponse() as {
+        code: string;
+        message: string;
+        statusCode: number;
+      };
+      expect(response).toEqual({
+        code: ERROR_CATALOG.WITH_TRANSFERS_LAST_MONTH_FETCH_FAILED.code,
+        message: ERROR_CATALOG.WITH_TRANSFERS_LAST_MONTH_FETCH_FAILED.message,
+        statusCode: ERROR_CATALOG.WITH_TRANSFERS_LAST_MONTH_FETCH_FAILED.status,
+      });
+    }
   });
 });
