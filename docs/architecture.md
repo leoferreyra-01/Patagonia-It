@@ -6,7 +6,7 @@ El proyecto implementa una API NestJS con arquitectura hexagonal para separar re
 
 ## Capas
 
-### Domain
+### Dominio
 
 Ubicacion: `src/domain`
 
@@ -15,7 +15,7 @@ Responsabilidades:
 - Puertos/contratos (`CompanyRepository`, `TransferRepository`)
 - Tipos y catalogo de errores de dominio
 
-### Application
+### Aplicacion
 
 Ubicacion: `src/application`
 
@@ -24,7 +24,7 @@ Responsabilidades:
 - Orquestacion de reglas de negocio
 - Validaciones de negocio previas a persistencia
 
-### Infrastructure
+### Infraestructura
 
 Ubicacion: `src/infrastructure`
 
@@ -35,14 +35,14 @@ Responsabilidades:
 
 ## Flujo principal
 
-### Alta de company
+### Alta de empresa
 
 1. `POST /api/companies` recibe el request.
 2. `CompaniesController` delega en `CreateCompanyUseCase`.
 3. El caso de uso valida formato y reglas de negocio.
 4. `CompanyRepository` consulta duplicados por `taxId`.
 5. Si no existe, se crea la entidad `Company` y se persiste.
-6. El controller devuelve `201` con la company creada.
+6. El controller devuelve `201` con la empresa creada.
 
 ## Decisiones principales
 
@@ -74,7 +74,7 @@ Mientras no haya clientes externos productivos, se mantiene `/api` para no agreg
 
 ### Regla futura
 
-Ante el primer cambio breaking en contratos publicos, se recomienda migrar a `/api/v1` y congelar el contrato anterior durante una ventana de transicion.
+Ante el primer cambio incompatible en contratos publicos, se recomienda migrar a `/api/v1` y congelar el contrato anterior durante una ventana de transicion.
 
 ## Integracion Lambda
 

@@ -1,29 +1,29 @@
 # Patagonia-It
 
-NestJS standalone API for the technical challenge.
+API standalone en NestJS para el challenge tecnico.
 
-## Requirements
+## Requisitos
 
 - Node 24
 
-## Run locally
+## Ejecucion local
 
-1. Install dependencies:
+1. Instalar dependencias:
 
 ```bash
 npm install
 ```
 
-2. Start in dev mode:
+2. Iniciar en modo desarrollo:
 
 ```bash
 npm run start:dev
 ```
 
-## API URLs
+## URLs de la API
 
-- API base URL: http://localhost:3000/api
-- Health endpoint: http://localhost:3000/api/health
+- URL base API: http://localhost:3000/api
+- Endpoint de health: http://localhost:3000/api/health
 - Swagger UI: http://localhost:3000/docs
 
 ## Tests
@@ -32,14 +32,17 @@ npm run start:dev
 npm test
 ```
 
-For coverage
+Para coverage
 
 ```bash
 npm run test:cov
 ```
 
-## Design docs
+## Documentacion
 
-- Architecture: [docs/architecture.md](docs/architecture.md)
-- Error catalog: [docs/errors.md](docs/errors.md)
-- Lambda contract: [lambda.md](lambda.md)
+- Arquitectura: [docs/architecture.md](docs/architecture.md)
+- Catalogo de errores: [docs/errors.md](docs/errors.md)
+- Primeros pasos: [docs/getting-started.md](docs/getting-started.md)
+- Guia operativa: [docs/runbook.md](docs/runbook.md)
+- Resolucion de problemas: [docs/troubleshooting.md](docs/troubleshooting.md)
+- Contrato Lambda: [docs/lambda.md](docs/lambda.md)
