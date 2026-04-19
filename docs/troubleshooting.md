@@ -63,6 +63,26 @@ Acciones:
 2. Confirmar existencia de la empresa en el directorio de datos activo
 3. Reintentar con un `companyId` valido
 
+## Listado de transferencias devuelve 404
+
+Sintomas:
+
+- `GET /api/transfers` responde `404`
+
+Causa:
+
+- El `taxId` en el query param no existe en `companies.json`
+
+Codigo esperado:
+
+- `COMPANY_TAX_ID_NOT_FOUND`
+
+Acciones:
+
+1. Verificar el `taxId` enviado en el query param
+2. Confirmar existencia de la empresa en el directorio de datos activo
+3. Reintentar con un `taxId` valido
+
 ## Resultados vacios al listar companies
 
 Sintomas:

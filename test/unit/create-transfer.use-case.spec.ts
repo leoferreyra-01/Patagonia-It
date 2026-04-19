@@ -22,6 +22,7 @@ describe('CreateTransferUseCase', () => {
     findByCompanyId: jest.fn(),
     findByDateRange: jest.fn(),
     findByCompanyIdAndDateRange: jest.fn(),
+    findByCompanyIdWithFilters: jest.fn(),
   });
 
   const makeCompanyRepository = (): CompanyRepository => ({

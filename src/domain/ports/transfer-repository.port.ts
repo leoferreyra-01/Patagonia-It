@@ -1,4 +1,10 @@
-import { Transfer } from '../entities/transfer.entity';
+import { Transfer, TransferStatus } from '../entities/transfer.entity';
+
+export interface TransferFilterOptions {
+  status?: TransferStatus;
+  limit: number;
+  offset: number;
+}
 
 export interface TransferRepository {
   save(transfer: Transfer): Promise<Transfer>;
@@ -9,6 +15,10 @@ export interface TransferRepository {
     startDate: Date,
     endDate: Date,
   ): Promise<Transfer[]>;
+  findByCompanyIdWithFilters(
+    companyId: string,
+    options: TransferFilterOptions,
+  ): Promise<{ items: Transfer[]; total: number }>;
 }
 
 export const TRANSFER_REPOSITORY = Symbol('TRANSFER_REPOSITORY');

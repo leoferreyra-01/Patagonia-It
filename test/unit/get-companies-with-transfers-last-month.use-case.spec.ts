@@ -76,6 +76,7 @@ describe('GetCompaniesWithTransfersLastMonthUseCase', () => {
       findByCompanyId: jest.fn(),
       findByDateRange: jest.fn(async () => [transferInRange, pendingTransfer]),
       findByCompanyIdAndDateRange: jest.fn(),
+      findByCompanyIdWithFilters: jest.fn(),
     };
 
     const useCase = new GetCompaniesWithTransfersLastMonthUseCase(
@@ -168,6 +169,7 @@ describe('GetCompaniesWithTransfersLastMonthUseCase', () => {
         ),
       ]),
       findByCompanyIdAndDateRange: jest.fn(),
+      findByCompanyIdWithFilters: jest.fn(),
     };
 
     const useCase = new GetCompaniesWithTransfersLastMonthUseCase(
@@ -211,6 +213,7 @@ describe('GetCompaniesWithTransfersLastMonthUseCase', () => {
         throw new Error('db read failure');
       }),
       findByCompanyIdAndDateRange: jest.fn(),
+      findByCompanyIdWithFilters: jest.fn(),
     };
 
     const useCase = new GetCompaniesWithTransfersLastMonthUseCase(
@@ -258,6 +261,7 @@ describe('GetCompaniesWithTransfersLastMonthUseCase', () => {
         throw PersistenceError.read('transfers.json', new Error('storage offline'));
       }),
       findByCompanyIdAndDateRange: jest.fn(),
+      findByCompanyIdWithFilters: jest.fn(),
     };
 
     const useCase = new GetCompaniesWithTransfersLastMonthUseCase(
@@ -298,6 +302,7 @@ describe('GetCompaniesWithTransfersLastMonthUseCase', () => {
     const transferRepository: TransferRepository = {
       save: jest.fn(),
       findByCompanyId: jest.fn(),
+      findByCompanyIdWithFilters: jest.fn(),
       findByDateRange: jest.fn(async () => [
         new Transfer(
           'transfer-completed',

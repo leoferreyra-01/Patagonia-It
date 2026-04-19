@@ -46,6 +46,7 @@ La resolucion de rutas se controla con `DATA_DIR` cuando esta presente; si no, s
 
 - `POST /api/companies`
 - `POST /api/transfers`
+- `GET /api/transfers`
 - `GET /api/companies`
 - `GET /api/companies/joined-last-month`
 - `GET /api/companies/with-transfers/last-month`
@@ -79,6 +80,7 @@ Esta matriz define que hacer segun el codigo recibido en el error envelope.
 | --- | --- | --- | --- | --- |
 | VALIDATION_ERROR | 400 | No | Input invalido en request | Corregir payload y reintentar manualmente |
 | COMPANY_ID_NOT_FOUND | 404 | No | companyId no existe en companies | Validar referencia y corregir companyId |
+| COMPANY_TAX_ID_NOT_FOUND | 404 | No | taxId no existe en companies | Validar taxId y corregirlo |
 | COMPANY_TAX_ID_ALREADY_EXISTS | 409 | No | Conflicto de negocio por taxId existente | Usar taxId nuevo o evitar doble submit |
 | JOINED_LAST_MONTH_FETCH_FAILED | 500 | No | Falla interna del caso de uso (no clasificada) | Revisar logs, traza y causa raiz |
 | WITH_TRANSFERS_LAST_MONTH_FETCH_FAILED | 500 | No | Falla interna del caso de uso (no clasificada) | Revisar logs, traza y causa raiz |
@@ -121,6 +123,13 @@ Esta matriz define que hacer segun el codigo recibido en el error envelope.
 
 1. Enviar `POST /api/transfers` con un `companyId` inexistente
 2. Confirmar `404` y `code: COMPANY_ID_NOT_FOUND`
+
+### Verificar listado de transferencias por empresa
+
+1. Enviar `GET /api/transfers?taxId=30-71000001-5`
+2. Confirmar `200` con `total`, `limit`, `offset` e `items`.
+3. Enviar `GET /api/transfers?taxId=30-00000000-0` con un taxId inexistente
+4. Confirmar `404` y `code: COMPANY_TAX_ID_NOT_FOUND`
 
 ### Verificar comportamiento de errores
 

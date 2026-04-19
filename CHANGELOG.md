@@ -10,6 +10,7 @@ El formato esta inspirado en Keep a Changelog y versionado semantico.
 - Endpoint productivo `POST /api/transfers` con DTOs, Swagger y persistencia JSON.
 - Validacion de existencia de empresa al crear transferencias (`companyId`) con respuesta deterministica `404` (`COMPANY_ID_NOT_FOUND`).
 - Filtro opcional `status` en `GET /api/companies/with-transfers/last-month` con soporte para `COMPLETED`, `PENDING` y `FAILED`.
+- Endpoint `GET /api/transfers` para listar transferencias por empresa con filtro opcional de `status`, paginacion (`limit`/`offset`) y lookup por `taxId` con respuesta `404` deterministica (`COMPANY_TAX_ID_NOT_FOUND`).
 - Readiness de dependencias en `GET /api/health/ready` y codigos de error operativos de persistencia.
 - Hook `pre-commit` con Husky para ejecutar `dependency-check`, tests y coverage antes de commitear.
 - Pipeline de CI con GitHub Actions en `.github/workflows/ci.yml`.

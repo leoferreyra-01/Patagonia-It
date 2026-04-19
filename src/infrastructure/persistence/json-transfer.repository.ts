@@ -1,6 +1,9 @@
 import { Injectable } from '@nestjs/common';
 import { Transfer } from '../../domain/entities/transfer.entity';
-import { TransferRepository } from '../../domain/ports/transfer-repository.port';
+import {
+  TransferFilterOptions,
+  TransferRepository,
+} from '../../domain/ports/transfer-repository.port';
 import { FileStorage } from './file-storage';
 
 type TransferRecord = {
@@ -57,6 +60,23 @@ export class JsonTransferRepository implements TransferRepository {
         );
       })
       .map((record) => this.toDomain(record));
+  }
+
+  async findByCompanyIdWithFilters(
+    companyId: string,
+    options: TransferFilterOptions,
+  ): Promise<{ items: Transfer[]; total: number }> {
+    const records = await this.storage.readArray<TransferRecord>(this.filePath);
+    const filtered = records.filter((record) => {
+      if (record.companyId !== companyId) return false;
+      if (options.status !== undefined && record.status !== options.status) return false;
+      return true;
+    });
+    const total = filtered.length;
+    const items = filtered
+      .slice(options.offset, options.offset + options.limit)
+      .map((record) => this.toDomain(record));
+    return { items, total };
   }
 
   private toDomain(record: TransferRecord): Transfer {

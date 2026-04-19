@@ -3,6 +3,7 @@ import { CreateCompanyUseCase } from '../../../application/use-cases/create-comp
 import { CreateTransferUseCase } from '../../../application/use-cases/create-transfer.use-case';
 import { GetJoinedLastMonthUseCase } from '../../../application/use-cases/get-joined-last-month.use-case';
 import { GetCompaniesWithTransfersLastMonthUseCase } from '../../../application/use-cases/get-companies-with-transfers-last-month.use-case';
+import { GetTransfersByCompanyUseCase } from '../../../application/use-cases/get-transfers-by-company.use-case';
 import { ListCompaniesUseCase } from '../../../application/use-cases/list-companies.use-case';
 import { COMPANY_REPOSITORY } from '../../../domain/ports/company-repository.port';
 import { TRANSFER_REPOSITORY } from '../../../domain/ports/transfer-repository.port';
@@ -22,6 +23,7 @@ import { JsonTransferRepository } from '../../persistence/json-transfer.reposito
     GetJoinedLastMonthUseCase,
     CreateCompanyUseCase,
     CreateTransferUseCase,
+    GetTransfersByCompanyUseCase,
     ListCompaniesUseCase,
     {
       provide: COMPANY_REPOSITORY,

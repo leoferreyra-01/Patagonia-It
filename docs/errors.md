@@ -82,6 +82,11 @@ Definir un lenguaje comun para errores del sistema con una respuesta uniforme en
 - Mensaje base: `Company with id %s not found`
 - Uso: `POST /api/transfers` cuando `companyId` no corresponde a una empresa existente
 
+### COMPANY_TAX_ID_NOT_FOUND
+- Estado: `404`
+- Mensaje base: `Company with taxId %s not found`
+- Uso: `GET /api/transfers` cuando `taxId` no corresponde a una empresa existente
+
 ### UNEXPECTED_CREATE_COMPANY_ERROR
 - Estado: `500`
 - Mensaje: `Unexpected error creating company`
@@ -141,5 +146,10 @@ Ejemplo de falla retryable de persistencia:
   - `404`: `COMPANY_ID_NOT_FOUND`
   - `500`: `UNEXPECTED_CREATE_COMPANY_ERROR`, `PERSISTED_DATA_INVALID`
   - `503`: `PERSISTENCE_READ_FAILED`, `PERSISTENCE_WRITE_FAILED`
+- `GET /api/transfers`
+  - `400`: `VALIDATION_ERROR` (por ejemplo, `taxId` ausente o `status` invalido)
+  - `404`: `COMPANY_TAX_ID_NOT_FOUND`
+  - `500`: `PERSISTED_DATA_INVALID`
+  - `503`: `PERSISTENCE_READ_FAILED`
 - `GET /api/health/ready`
   - `503`: `READINESS_PERSISTENCE_CHECK_FAILED`

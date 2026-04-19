@@ -109,6 +109,22 @@ Esperado: `201 Created` y payload con `id`, `date` y `status`.
 
 Si `companyId` no existe, esperado: `404` con codigo `COMPANY_ID_NOT_FOUND`.
 
+### 7. Listar transferencias por empresa
+
+```bash
+curl -i "http://localhost:3000/api/transfers?taxId=30-71000001-5"
+```
+
+Con filtro de estado y paginacion:
+
+```bash
+curl -i "http://localhost:3000/api/transfers?taxId=30-71000001-5&status=COMPLETED&limit=10&offset=0"
+```
+
+Esperado: `200 OK` con `total`, `limit`, `offset` e `items`.
+
+Si `taxId` no existe, esperado: `404` con codigo `COMPANY_TAX_ID_NOT_FOUND`.
+
 ## Comportamiento de validacion
 
 La validacion de requests se aplica mediante el `ValidationPipe` global.

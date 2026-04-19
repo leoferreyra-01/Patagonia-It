@@ -85,6 +85,11 @@ export const ERROR_CATALOG = {
     status: 404,
     message: 'Company with id %s not found',
   },
+  COMPANY_TAX_ID_NOT_FOUND: {
+    code: 'COMPANY_TAX_ID_NOT_FOUND',
+    status: 404,
+    message: 'Company with taxId %s not found',
+  },
   UNEXPECTED_CREATE_COMPANY_ERROR: {
     code: 'UNEXPECTED_CREATE_COMPANY_ERROR',
     status: 500,
