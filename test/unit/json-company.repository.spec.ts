@@ -78,6 +78,63 @@ describe('JsonCompanyRepository', () => {
     expect(result[0].id).toBe('company-1');
   });
 
+  it('findByType applies type filtering and pagination', async () => {
+    storage.readArray.mockResolvedValue([
+      companyRecord,
+      {
+        ...companyRecord,
+        id: 'company-2',
+        taxId: '30-22222222-2',
+        type: CompanyType.PYME,
+      },
+      {
+        ...companyRecord,
+        id: 'company-3',
+        taxId: '30-33333333-3',
+        type: CompanyType.PYME,
+      },
+    ]);
+
+    const result = await repository.findByType(CompanyType.PYME, {
+      limit: 1,
+      offset: 1,
+    });
+
+    expect(result.total).toBe(2);
+    expect(result.items).toHaveLength(1);
+    expect(result.items[0].id).toBe('company-3');
+  });
+
+  it('findByTypeAndCountry applies both filters and pagination', async () => {
+    storage.readArray.mockResolvedValue([
+      companyRecord,
+      {
+        ...companyRecord,
+        id: 'company-2',
+        taxId: '30-22222222-2',
+        type: CompanyType.PYME,
+        country: 'AR',
+      },
+      {
+        ...companyRecord,
+        id: 'company-3',
+        taxId: '30-33333333-3',
+        type: CompanyType.PYME,
+        country: 'UY',
+      },
+    ]);
+
+    const result = await repository.findByTypeAndCountry(
+      CompanyType.PYME,
+      'AR',
+      { limit: 10, offset: 0 },
+    );
+
+    expect(result.total).toBe(1);
+    expect(result.items).toHaveLength(1);
+    expect(result.items[0].id).toBe('company-2');
+  });
+
   it('save appends and persists new company', async () => {
     storage.readArray.mockResolvedValue([companyRecord]);
 

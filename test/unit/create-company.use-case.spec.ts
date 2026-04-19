@@ -88,6 +88,46 @@ describe('CreateCompanyUseCase', () => {
     ).rejects.toBeInstanceOf(BadRequestException);
   });
 
+  it('throws BadRequestException when taxId is missing', async () => {
+    const repository = makeRepository();
+    const useCase = new CreateCompanyUseCase(repository);
+
+    await expect(
+      useCase.execute({
+        taxId: '' as string,
+        name: 'Missing TaxId Co',
+        type: CompanyType.PYME,
+      }),
+    ).rejects.toBeInstanceOf(BadRequestException);
+  });
+
+  it('throws BadRequestException when name is blank', async () => {
+    const repository = makeRepository();
+    const useCase = new CreateCompanyUseCase(repository);
+
+    await expect(
+      useCase.execute({
+        taxId: '30-87654321-0',
+        name: '   ',
+        type: CompanyType.PYME,
+      }),
+    ).rejects.toBeInstanceOf(BadRequestException);
+  });
+
+  it('throws BadRequestException when country is blank', async () => {
+    const repository = makeRepository();
+    const useCase = new CreateCompanyUseCase(repository);
+
+    await expect(
+      useCase.execute({
+        taxId: '30-87654321-0',
+        name: 'Invalid Country Co',
+        type: CompanyType.PYME,
+        country: ' ',
+      }),
+    ).rejects.toBeInstanceOf(BadRequestException);
+  });
+
   it('throws BadRequestException for unsupported company type', async () => {
     const repository = makeRepository();
     const useCase = new CreateCompanyUseCase(repository);
