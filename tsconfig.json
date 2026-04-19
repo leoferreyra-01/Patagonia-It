@@ -17,6 +17,6 @@
     "types": ["node", "jest"],
     "forceConsistentCasingInFileNames": true
   },
-  "include": ["src/**/*", "test/**/*"],
+  "include": ["src/**/*", "test/**/*", "lambda/**/*"],
   "exclude": ["node_modules", "dist"]
 }
