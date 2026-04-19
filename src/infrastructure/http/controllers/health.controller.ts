@@ -4,6 +4,7 @@ import {
   ServiceUnavailableException,
 } from '@nestjs/common';
 import {
+  ApiInternalServerErrorResponse,
   ApiOkResponse,
   ApiOperation,
   ApiProperty,
@@ -11,6 +12,7 @@ import {
   ApiTags,
 } from '@nestjs/swagger';
 import { ERROR_CATALOG } from '../../../domain/errors/error-codes';
+import { ErrorResponseDto } from '../dto/error-response.dto';
 import { HealthReadinessService } from '../services/health-readiness.service';
 
 class HealthResponse {
@@ -61,6 +63,11 @@ export class HealthController {
   })
   @ApiServiceUnavailableResponse({
     description: 'API is not ready due to dependency checks failing',
+    type: ErrorResponseDto,
+  })
+  @ApiInternalServerErrorResponse({
+    description: 'Unexpected readiness check failure',
+    type: ErrorResponseDto,
   })
   async getReadiness() {
     try {

@@ -1,12 +1,13 @@
 import { Body, Controller, Get, Post, Query } from '@nestjs/common';
 import {
+  ApiBadRequestResponse,
   ApiConflictResponse,
   ApiCreatedResponse,
   ApiInternalServerErrorResponse,
   ApiOkResponse,
   ApiOperation,
+  ApiServiceUnavailableResponse,
   ApiTags,
-  ApiQuery,
 } from '@nestjs/swagger';
 import { CreateCompanyUseCase } from '../../../application/use-cases/create-company.use-case';
 import { GetJoinedLastMonthUseCase } from '../../../application/use-cases/get-joined-last-month.use-case';
@@ -41,6 +42,18 @@ export class CompaniesController {
   @ApiOkResponse({
     description: 'Paginated list of companies',
     type: PaginatedResponseDto,
+  })
+  @ApiBadRequestResponse({
+    description: 'Validation error in query parameters',
+    type: ErrorResponseDto,
+  })
+  @ApiInternalServerErrorResponse({
+    description: 'Unexpected failure while listing companies',
+    type: ErrorResponseDto,
+  })
+  @ApiServiceUnavailableResponse({
+    description: 'Persistence dependency is temporarily unavailable',
+    type: ErrorResponseDto,
   })
   async listCompanies(
     @Query() query: ListCompaniesQueryDto,
@@ -79,6 +92,10 @@ export class CompaniesController {
     description: 'Unexpected failure while fetching transfer summary',
     type: ErrorResponseDto,
   })
+  @ApiServiceUnavailableResponse({
+    description: 'Persistence dependency is temporarily unavailable',
+    type: ErrorResponseDto,
+  })
   async getCompaniesWithTransfersLastMonth(): Promise<CompaniesWithTransfersLastMonthResponseDto> {
     const items = await this.getCompaniesWithTransfersLastMonthUseCase.execute();
 
@@ -98,6 +115,10 @@ export class CompaniesController {
   })
   @ApiInternalServerErrorResponse({
     description: 'Unexpected failure while fetching recently joined companies',
+    type: ErrorResponseDto,
+  })
+  @ApiServiceUnavailableResponse({
+    description: 'Persistence dependency is temporarily unavailable',
     type: ErrorResponseDto,
   })
   async getJoinedLastMonth(): Promise<JoinedLastMonthResponseDto> {
@@ -124,8 +145,21 @@ export class CompaniesController {
     description: 'Company created successfully',
     type: CreateCompanyResponseDto,
   })
+  @ApiBadRequestResponse({
+    description: 'Validation error in request payload',
+    type: ErrorResponseDto,
+  })
   @ApiConflictResponse({
     description: 'Company with the same taxId already exists',
+    type: ErrorResponseDto,
+  })
+  @ApiInternalServerErrorResponse({
+    description: 'Unexpected failure while creating company',
+    type: ErrorResponseDto,
+  })
+  @ApiServiceUnavailableResponse({
+    description: 'Persistence dependency is temporarily unavailable',
+    type: ErrorResponseDto,
   })
   async createCompany(
     @Body() request: CreateCompanyRequestDto,

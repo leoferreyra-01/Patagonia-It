@@ -112,3 +112,23 @@ Ejemplo de falla retryable de persistencia:
 - `retryable: true` aplica a fallas de lectura/escritura de persistencia donde un reintento puede resolver el problema.
 - `retryable: false` aplica a datos persistidos corruptos o inconsistentes, donde hace falta intervencion operativa.
 - El atributo de retryabilidad se mantiene en la taxonomia interna y hoy no se expone en el body HTTP.
+
+## Cobertura por endpoint (Swagger)
+
+- `GET /api/companies`
+  - `400`: `VALIDATION_ERROR`
+  - `500`: `UNEXPECTED_CREATE_COMPANY_ERROR` (fallback)
+  - `503`: `PERSISTENCE_READ_FAILED`, `PERSISTED_DATA_INVALID`
+- `GET /api/companies/joined-last-month`
+  - `500`: `JOINED_LAST_MONTH_FETCH_FAILED`, `PERSISTED_DATA_INVALID`
+  - `503`: `PERSISTENCE_READ_FAILED`
+- `GET /api/companies/with-transfers/last-month`
+  - `500`: `WITH_TRANSFERS_LAST_MONTH_FETCH_FAILED`, `PERSISTED_DATA_INVALID`
+  - `503`: `PERSISTENCE_READ_FAILED`
+- `POST /api/companies`
+  - `400`: `VALIDATION_ERROR`, `TAX_ID_REQUIRED`, `INVALID_TAX_ID_FORMAT`, `NAME_REQUIRED`, `INVALID_COMPANY_TYPE`, `INVALID_COUNTRY`
+  - `409`: `COMPANY_TAX_ID_ALREADY_EXISTS`
+  - `500`: `UNEXPECTED_CREATE_COMPANY_ERROR`, `PERSISTED_DATA_INVALID`
+  - `503`: `PERSISTENCE_READ_FAILED`, `PERSISTENCE_WRITE_FAILED`
+- `GET /api/health/ready`
+  - `503`: `READINESS_PERSISTENCE_CHECK_FAILED`
