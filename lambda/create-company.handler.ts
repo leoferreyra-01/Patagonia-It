@@ -1,8 +1,5 @@
 import {
   BadRequestException,
-  ConflictException,
-  HttpException,
-  InternalServerErrorException,
 } from '@nestjs/common';
 import {
   ApiGatewayEvent,
@@ -17,6 +14,7 @@ import {
 import { CompanyType } from '../src/domain/entities/company.entity';
 import { FileStorage } from '../src/infrastructure/persistence/file-storage';
 import { JsonCompanyRepository } from '../src/infrastructure/persistence/json-company.repository';
+import { mapErrorToResponse } from '../src/infrastructure/http/utils/error-response.mapper';
 
 const fileStorage = new FileStorage();
 const companyRepository = new JsonCompanyRepository(fileStorage);
@@ -63,22 +61,8 @@ const parseBody = (body: string | null): CreateCompanyLambdaInput => {
 };
 
 const mapError = (error: unknown): ApiGatewayResponse => {
-  if (error instanceof BadRequestException || error instanceof ConflictException) {
-    return jsonResponse(error.getStatus(), {
-      message: error.message,
-    });
-  }
-
-  if (error instanceof HttpException) {
-    return jsonResponse(error.getStatus(), {
-      message: error.message,
-    });
-  }
-
-  const unknownError = new InternalServerErrorException('Unexpected error creating company');
-  return jsonResponse(unknownError.getStatus(), {
-    message: unknownError.message,
-  });
+  const payload = mapErrorToResponse(error);
+  return jsonResponse(payload.statusCode, payload);
 };
 
 const jsonResponse = (statusCode: number, body: unknown): ApiGatewayResponse => ({
