@@ -14,6 +14,8 @@ import { TransferRepository } from '../../src/domain/ports/transfer-repository.p
 import { GetCompaniesWithTransfersLastMonthUseCase } from '../../src/application/use-cases/get-companies-with-transfers-last-month.use-case';
 
 describe('GetCompaniesWithTransfersLastMonthUseCase', () => {
+  const referenceDate = new Date('2026-04-18T00:00:00.000Z');
+
   it('returns only companies with completed transfers in last 30 days', async () => {
     const companyA = new Company(
       'company-a',
@@ -81,7 +83,7 @@ describe('GetCompaniesWithTransfersLastMonthUseCase', () => {
       transferRepository,
     );
 
-    const result = await useCase.execute(new Date('2026-04-18T00:00:00.000Z'));
+    const result = await useCase.execute(referenceDate);
 
     expect(result).toHaveLength(1);
     expect(result[0]).toMatchObject({
@@ -173,7 +175,7 @@ describe('GetCompaniesWithTransfersLastMonthUseCase', () => {
       transferRepository,
     );
 
-    const result = await useCase.execute(new Date('2026-04-18T00:00:00.000Z'));
+    const result = await useCase.execute(referenceDate);
 
     expect(result).toHaveLength(2);
     expect(result[0]).toMatchObject({
@@ -216,12 +218,12 @@ describe('GetCompaniesWithTransfersLastMonthUseCase', () => {
       transferRepository,
     );
 
-    await expect(useCase.execute(new Date('2026-04-18T00:00:00.000Z'))).rejects.toBeInstanceOf(
+    await expect(useCase.execute(referenceDate)).rejects.toBeInstanceOf(
       InternalServerErrorException,
     );
 
     try {
-      await useCase.execute(new Date('2026-04-18T00:00:00.000Z'));
+      await useCase.execute(referenceDate);
     } catch (error) {
       const response = (error as InternalServerErrorException).getResponse() as {
         code: string;
@@ -263,11 +265,71 @@ describe('GetCompaniesWithTransfersLastMonthUseCase', () => {
       transferRepository,
     );
 
-    await expect(useCase.execute(new Date('2026-04-18T00:00:00.000Z'))).rejects.toMatchObject({
+    await expect(useCase.execute(referenceDate)).rejects.toMatchObject({
       code: ERROR_CATALOG.PERSISTENCE_READ_FAILED.code,
       message: ERROR_CATALOG.PERSISTENCE_READ_FAILED.message,
       statusCode: ERROR_CATALOG.PERSISTENCE_READ_FAILED.status,
       retryable: true,
+    });
+  });
+
+  it('filters by status when provided (PENDING)', async () => {
+    const company = new Company(
+      'company-a',
+      '30-99999999-7',
+      'Company A',
+      CompanyType.CORPORATIVA,
+      new Date('2026-03-01T00:00:00.000Z'),
+      'AR',
+    );
+
+    const companyRepository: CompanyRepository = {
+      findAll: jest.fn(),
+      findById: jest.fn(async () => company),
+      findByTaxId: jest.fn(),
+      findByRegistrationDateRange: jest.fn(),
+      findByType: jest.fn(),
+      findByTypeAndCountry: jest.fn(),
+      save: jest.fn(),
+      update: jest.fn(),
+      delete: jest.fn(),
+    };
+
+    const transferRepository: TransferRepository = {
+      save: jest.fn(),
+      findByCompanyId: jest.fn(),
+      findByDateRange: jest.fn(async () => [
+        new Transfer(
+          'transfer-completed',
+          100,
+          'company-a',
+          new Date('2026-04-10T00:00:00.000Z'),
+          TransferStatus.COMPLETED,
+        ),
+        new Transfer(
+          'transfer-pending',
+          200,
+          'company-a',
+          new Date('2026-04-11T00:00:00.000Z'),
+          TransferStatus.PENDING,
+        ),
+      ]),
+      findByCompanyIdAndDateRange: jest.fn(),
+    };
+
+    const useCase = new GetCompaniesWithTransfersLastMonthUseCase(
+      companyRepository,
+      transferRepository,
+    );
+
+    const result = await useCase.execute(referenceDate, TransferStatus.PENDING);
+
+    expect(result).toHaveLength(1);
+    expect(result[0]).toMatchObject({
+      id: 'company-a',
+      transfersInLastMonth: 1,
+      totalTransferredAmountLastMonth: 200,
+      lastTransferDate: '2026-04-11T00:00:00.000Z',
     });
   });
 });

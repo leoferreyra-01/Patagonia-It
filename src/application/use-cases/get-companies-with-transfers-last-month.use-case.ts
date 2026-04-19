@@ -33,15 +33,18 @@ export class GetCompaniesWithTransfersLastMonthUseCase {
     private readonly transferRepository: TransferRepository,
   ) {}
 
-  async execute(referenceDate: Date = new Date()): Promise<CompanyWithTransferSummary[]> {
+  async execute(
+    referenceDate: Date = new Date(),
+    status: TransferStatus = TransferStatus.COMPLETED,
+  ): Promise<CompanyWithTransferSummary[]> {
     try {
       const endDate = referenceDate;
       const startDate = new Date(referenceDate);
       startDate.setDate(startDate.getDate() - 30);
 
       const transfers = await this.transferRepository.findByDateRange(startDate, endDate);
-      const completedTransfers = transfers.filter(
-        (transfer) => transfer.status === TransferStatus.COMPLETED,
+      const filteredTransfers = transfers.filter(
+        (transfer) => transfer.status === status,
       );
 
       const summaryByCompanyId = new Map<
@@ -49,7 +52,7 @@ export class GetCompaniesWithTransfersLastMonthUseCase {
         { count: number; totalAmount: number; lastDate: Date }
       >();
 
-      for (const transfer of completedTransfers) {
+      for (const transfer of filteredTransfers) {
         const current = summaryByCompanyId.get(transfer.companyId);
         if (!current) {
           summaryByCompanyId.set(transfer.companyId, {

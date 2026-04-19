@@ -87,6 +87,28 @@ curl -i http://localhost:3000/api/companies/joined-last-month
 curl -i http://localhost:3000/api/companies/with-transfers/last-month
 ```
 
+Con filtro opcional de estado (`COMPLETED`, `PENDING`, `FAILED`):
+
+```bash
+curl -i "http://localhost:3000/api/companies/with-transfers/last-month?status=PENDING"
+```
+
+### 6. Crear transferencia
+
+```bash
+curl -i -X POST http://localhost:3000/api/transfers \
+  -H "Content-Type: application/json" \
+  -d '{
+    "amount": 1200.5,
+    "companyId": "3f58f3c4-c20a-4c6f-801f-15e5c31f89ea",
+    "status": "PENDING"
+  }'
+```
+
+Esperado: `201 Created` y payload con `id`, `date` y `status`.
+
+Si `companyId` no existe, esperado: `404` con codigo `COMPANY_ID_NOT_FOUND`.
+
 ## Comportamiento de validacion
 
 La validacion de requests se aplica mediante el `ValidationPipe` global.

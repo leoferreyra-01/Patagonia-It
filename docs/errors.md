@@ -77,6 +77,11 @@ Definir un lenguaje comun para errores del sistema con una respuesta uniforme en
 - Estado: `409`
 - Mensaje base: `Company with taxId %s already exists`
 
+### COMPANY_ID_NOT_FOUND
+- Estado: `404`
+- Mensaje base: `Company with id %s not found`
+- Uso: `POST /api/transfers` cuando `companyId` no corresponde a una empresa existente
+
 ### UNEXPECTED_CREATE_COMPANY_ERROR
 - Estado: `500`
 - Mensaje: `Unexpected error creating company`
@@ -123,11 +128,17 @@ Ejemplo de falla retryable de persistencia:
   - `500`: `JOINED_LAST_MONTH_FETCH_FAILED`, `PERSISTED_DATA_INVALID`
   - `503`: `PERSISTENCE_READ_FAILED`
 - `GET /api/companies/with-transfers/last-month`
+  - `400`: `VALIDATION_ERROR` (por ejemplo, `status` invalido)
   - `500`: `WITH_TRANSFERS_LAST_MONTH_FETCH_FAILED`, `PERSISTED_DATA_INVALID`
   - `503`: `PERSISTENCE_READ_FAILED`
 - `POST /api/companies`
   - `400`: `VALIDATION_ERROR`, `TAX_ID_REQUIRED`, `INVALID_TAX_ID_FORMAT`, `NAME_REQUIRED`, `INVALID_COMPANY_TYPE`, `INVALID_COUNTRY`
   - `409`: `COMPANY_TAX_ID_ALREADY_EXISTS`
+  - `500`: `UNEXPECTED_CREATE_COMPANY_ERROR`, `PERSISTED_DATA_INVALID`
+  - `503`: `PERSISTENCE_READ_FAILED`, `PERSISTENCE_WRITE_FAILED`
+- `POST /api/transfers`
+  - `400`: `VALIDATION_ERROR`
+  - `404`: `COMPANY_ID_NOT_FOUND`
   - `500`: `UNEXPECTED_CREATE_COMPANY_ERROR`, `PERSISTED_DATA_INVALID`
   - `503`: `PERSISTENCE_READ_FAILED`, `PERSISTENCE_WRITE_FAILED`
 - `GET /api/health/ready`

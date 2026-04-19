@@ -25,7 +25,8 @@ Chequeos:
 1. Confirmar el formato del payload y los campos requeridos
 2. Confirmar que el formato de `taxId` sea `NN-NNNNNNNN-N`
 3. Para el endpoint de listado, verificar que `limit` y `offset` sean enteros
-4. Quitar campos desconocidos del request payload
+4. Para `GET /api/companies/with-transfers/last-month`, usar `status` valido (`COMPLETED`, `PENDING`, `FAILED`)
+5. Quitar campos desconocidos del request payload
 
 ## Conflicto por taxId duplicado
 
@@ -41,6 +42,26 @@ Acciones:
 
 1. Usar un taxId nuevo
 2. Revisar `companies.json` en el directorio de datos activo
+
+## Creacion de transferencia devuelve 404
+
+Sintomas:
+
+- `POST /api/transfers` responde `404`
+
+Causa:
+
+- El `companyId` no existe en `companies.json`
+
+Codigo esperado:
+
+- `COMPANY_ID_NOT_FOUND`
+
+Acciones:
+
+1. Verificar el `companyId` enviado en el request
+2. Confirmar existencia de la empresa en el directorio de datos activo
+3. Reintentar con un `companyId` valido
 
 ## Resultados vacios al listar companies
 

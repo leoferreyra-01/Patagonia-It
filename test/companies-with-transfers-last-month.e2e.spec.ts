@@ -1,4 +1,8 @@
-import { INestApplication } from '@nestjs/common';
+import {
+  BadRequestException,
+  INestApplication,
+  ValidationPipe,
+} from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { promises as fs } from 'node:fs';
 import path from 'node:path';
@@ -68,6 +72,13 @@ describe('CompaniesController (e2e)', () => {
             date: fortyDaysAgo.toISOString(),
             status: 'COMPLETED',
           },
+          {
+            id: 'transfer-3',
+            amount: 750,
+            companyId: 'company-2',
+            date: tenDaysAgo.toISOString(),
+            status: 'PENDING',
+          },
         ],
         null,
         2,
@@ -81,6 +92,24 @@ describe('CompaniesController (e2e)', () => {
 
     app = moduleFixture.createNestApplication();
     app.setGlobalPrefix('api');
+    app.useGlobalPipes(
+      new ValidationPipe({
+        whitelist: true,
+        forbidNonWhitelisted: true,
+        transform: true,
+        exceptionFactory: (validationErrors) =>
+          new BadRequestException({
+            code: 'VALIDATION_ERROR',
+            message: validationErrors.flatMap((error) =>
+              Object.values(error.constraints ?? {}),
+            ),
+            statusCode: 400,
+          }),
+        transformOptions: {
+          enableImplicitConversion: true,
+        },
+      }),
+    );
     await app.init();
   });
 
@@ -105,5 +134,31 @@ describe('CompaniesController (e2e)', () => {
       transfersInLastMonth: 1,
       totalTransferredAmountLastMonth: 1500,
     });
+  });
+
+  it('GET /api/companies/with-transfers/last-month?status=PENDING filters by status', async () => {
+    const response = await request(app.getHttpServer()).get(
+      '/api/companies/with-transfers/last-month?status=PENDING',
+    );
+
+    expect(response.status).toBe(200);
+    expect(response.body.total).toBe(1);
+    expect(response.body.items).toHaveLength(1);
+    expect(response.body.items[0]).toMatchObject({
+      id: 'company-2',
+      taxId: '30-22222222-2',
+      name: 'Company Two',
+      transfersInLastMonth: 1,
+      totalTransferredAmountLastMonth: 750,
+    });
+  });
+
+  it('returns 400 when status query is invalid', async () => {
+    const response = await request(app.getHttpServer()).get(
+      '/api/companies/with-transfers/last-month?status=UNKNOWN',
+    );
+
+    expect(response.status).toBe(400);
+    expect(response.body.code).toBe('VALIDATION_ERROR');
   });
 });

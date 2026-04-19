@@ -45,6 +45,7 @@ La resolucion de rutas se controla con `DATA_DIR` cuando esta presente; si no, s
 ## Endpoints principales
 
 - `POST /api/companies`
+- `POST /api/transfers`
 - `GET /api/companies`
 - `GET /api/companies/joined-last-month`
 - `GET /api/companies/with-transfers/last-month`
@@ -77,6 +78,7 @@ Esta matriz define que hacer segun el codigo recibido en el error envelope.
 | Codigo | Estado | Retryable | Diagnostico rapido | Accion inmediata |
 | --- | --- | --- | --- | --- |
 | VALIDATION_ERROR | 400 | No | Input invalido en request | Corregir payload y reintentar manualmente |
+| COMPANY_ID_NOT_FOUND | 404 | No | companyId no existe en companies | Validar referencia y corregir companyId |
 | COMPANY_TAX_ID_ALREADY_EXISTS | 409 | No | Conflicto de negocio por taxId existente | Usar taxId nuevo o evitar doble submit |
 | JOINED_LAST_MONTH_FETCH_FAILED | 500 | No | Falla interna del caso de uso (no clasificada) | Revisar logs, traza y causa raiz |
 | WITH_TRANSFERS_LAST_MONTH_FETCH_FAILED | 500 | No | Falla interna del caso de uso (no clasificada) | Revisar logs, traza y causa raiz |
@@ -111,13 +113,21 @@ Esta matriz define que hacer segun el codigo recibido en el error envelope.
 ### Verificar flujo create + read
 
 1. Crear una company por `POST /api/companies`
-2. Recuperarla por `GET /api/companies`
-3. Confirmar que `total` y el mapping de items sean correctos.
+2. Crear una transferencia valida por `POST /api/transfers`
+3. Recuperar por `GET /api/companies`
+4. Confirmar que `total` y el mapping de items sean correctos.
+
+### Verificar validacion de companyId en transferencias
+
+1. Enviar `POST /api/transfers` con un `companyId` inexistente
+2. Confirmar `404` y `code: COMPANY_ID_NOT_FOUND`
 
 ### Verificar comportamiento de errores
 
 1. Enviar payload invalido a `POST /api/companies`
 2. Confirmar `400` y `code: VALIDATION_ERROR`.
+3. Enviar `GET /api/companies/with-transfers/last-month?status=UNKNOWN`
+4. Confirmar `400` y `code: VALIDATION_ERROR`.
 
 ## Checklist de seguridad para release
 

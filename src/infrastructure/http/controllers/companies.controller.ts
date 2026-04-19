@@ -6,6 +6,7 @@ import {
   ApiInternalServerErrorResponse,
   ApiOkResponse,
   ApiOperation,
+  ApiQuery,
   ApiServiceUnavailableResponse,
   ApiTags,
 } from '@nestjs/swagger';
@@ -20,10 +21,12 @@ import {
 import { ErrorResponseDto } from '../dto/error-response.dto';
 import { JoinedLastMonthResponseDto } from '../dto/joined-last-month.dto';
 import { CompaniesWithTransfersLastMonthResponseDto } from '../dto/companies-with-transfers-last-month.dto';
+import { CompaniesWithTransfersLastMonthQueryDto } from '../dto/companies-with-transfers-last-month-query.dto';
 import {
   ListCompaniesQueryDto,
   PaginatedResponseDto,
 } from '../dto/list-companies-query.dto';
+import { TransferStatus } from '../../../domain/entities/transfer.entity';
 
 @ApiTags('Companies')
 @Controller('companies')
@@ -88,6 +91,16 @@ export class CompaniesController {
     description: 'List of companies with transfer summary for the last month',
     type: CompaniesWithTransfersLastMonthResponseDto,
   })
+  @ApiQuery({
+    name: 'status',
+    required: false,
+    enum: TransferStatus,
+    description: 'Optional transfer status filter. Defaults to COMPLETED when omitted.',
+  })
+  @ApiBadRequestResponse({
+    description: 'Validation error in query parameters',
+    type: ErrorResponseDto,
+  })
   @ApiInternalServerErrorResponse({
     description: 'Unexpected failure while fetching transfer summary',
     type: ErrorResponseDto,
@@ -96,8 +109,13 @@ export class CompaniesController {
     description: 'Persistence dependency is temporarily unavailable',
     type: ErrorResponseDto,
   })
-  async getCompaniesWithTransfersLastMonth(): Promise<CompaniesWithTransfersLastMonthResponseDto> {
-    const items = await this.getCompaniesWithTransfersLastMonthUseCase.execute();
+  async getCompaniesWithTransfersLastMonth(
+    @Query() query: CompaniesWithTransfersLastMonthQueryDto,
+  ): Promise<CompaniesWithTransfersLastMonthResponseDto> {
+    const items = await this.getCompaniesWithTransfersLastMonthUseCase.execute(
+      new Date(),
+      query.status,
+    );
 
     return {
       total: items.length,

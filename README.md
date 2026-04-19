@@ -25,6 +25,7 @@ npm run start:dev
 - URL base API: http://localhost:3000/api
 - Endpoint de health: http://localhost:3000/api/health
 - Endpoint de readiness: http://localhost:3000/api/health/ready
+- Endpoint de creacion de transferencias: http://localhost:3000/api/transfers
 - Swagger UI: http://localhost:3000/docs
 
 ## Tests
