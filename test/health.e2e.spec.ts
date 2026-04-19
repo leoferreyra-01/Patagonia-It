@@ -28,5 +28,16 @@ describe('HealthController (e2e)', () => {
       status: 'ok',
       message: 'Hello from NestJS',
     });
+    expect(response.headers['x-correlation-id']).toBeDefined();
+  });
+
+  it('propagates incoming x-correlation-id header', async () => {
+    const correlationId = 'test-correlation-id-123';
+    const response = await request(app.getHttpServer())
+      .get('/api/health')
+      .set('x-correlation-id', correlationId);
+
+    expect(response.status).toBe(200);
+    expect(response.headers['x-correlation-id']).toBe(correlationId);
   });
 });
