@@ -117,8 +117,8 @@ Ejemplo de falla retryable de persistencia:
 
 - `GET /api/companies`
   - `400`: `VALIDATION_ERROR`
-  - `500`: `UNEXPECTED_CREATE_COMPANY_ERROR` (fallback)
-  - `503`: `PERSISTENCE_READ_FAILED`, `PERSISTED_DATA_INVALID`
+  - `500`: `UNEXPECTED_CREATE_COMPANY_ERROR` (fallback), `PERSISTED_DATA_INVALID`
+  - `503`: `PERSISTENCE_READ_FAILED`
 - `GET /api/companies/joined-last-month`
   - `500`: `JOINED_LAST_MONTH_FETCH_FAILED`, `PERSISTED_DATA_INVALID`
   - `503`: `PERSISTENCE_READ_FAILED`

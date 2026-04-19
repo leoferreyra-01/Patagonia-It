@@ -24,12 +24,19 @@ npm run start:dev
 
 - URL base API: http://localhost:3000/api
 - Endpoint de health: http://localhost:3000/api/health
+- Endpoint de readiness: http://localhost:3000/api/health/ready
 - Swagger UI: http://localhost:3000/docs
 
 ## Tests
 
 ```bash
 npm test
+```
+
+Para ver logs durante tests (debug):
+
+```bash
+JEST_SILENT=false npm test -- --runInBand
 ```
 
 Para coverage

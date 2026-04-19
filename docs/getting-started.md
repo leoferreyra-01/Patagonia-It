@@ -25,6 +25,7 @@ URLs por defecto:
 
 - API base: `http://localhost:3000/api`
 - Health: `http://localhost:3000/api/health`
+- Readiness: `http://localhost:3000/api/health/ready`
 - Swagger: `http://localhost:3000/docs`
 
 ## Ejecutar tests
@@ -99,7 +100,7 @@ Ejemplo de error de validacion:
 ```json
 {
   "code": "VALIDATION_ERROR",
-  "message": ["taxId must match format NN-NNNNNNNN-N"],
+  "message": ["taxId format must be NN-NNNNNNNN-N"],
   "statusCode": 400
 }
 ```

@@ -57,6 +57,7 @@ Clases de estado principales:
 
 - `400`: Validacion o input invalido
 - `409`: Conflicto de negocio (por ejemplo, taxId duplicado)
+- `503`: Dependencia no disponible temporalmente (retryable)
 - `500`: Falla inesperada de infraestructura o ejecucion
 
 Las respuestas de validacion incluyen:

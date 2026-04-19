@@ -32,9 +32,8 @@ Ejemplos:
 2. Registrar entrada en `CHANGELOG.md`.
 3. Comunicar impacto y plan de migracion en el PR.
 4. Evaluar versionado de API:
-
-- Si no hay impacto externo: mantener `/api`.
-- Si hay impacto externo breaking: planificar `/api/v1`.
+	- Si no hay impacto externo: mantener `/api`.
+	- Si hay impacto externo breaking: planificar `/api/v1`.
 
 ## Criterios de aprobacion
 
