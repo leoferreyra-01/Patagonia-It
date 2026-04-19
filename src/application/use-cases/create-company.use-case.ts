@@ -4,12 +4,18 @@ import {
   Inject,
   Injectable,
 } from '@nestjs/common';
+import {
+  COMPANY_TYPES,
+  DEFAULT_COMPANY_COUNTRY,
+  TAX_ID_FORMAT,
+} from '../../domain/constants/company.constants';
 import { Company, CompanyType } from '../../domain/entities/company.entity';
 import { ERROR_CATALOG } from '../../domain/errors/error-codes';
 import {
   COMPANY_REPOSITORY,
   CompanyRepository,
 } from '../../domain/ports/company-repository.port';
+import { isValidTaxId } from '../../domain/validators/tax-id.validator';
 
 export type CreateCompanyCommand = {
   taxId: string;
@@ -39,7 +45,7 @@ export class CreateCompanyUseCase {
       command.taxId,
       command.name.trim(),
       command.type,
-      command.country?.trim() || 'AR',
+      command.country?.trim() || DEFAULT_COMPANY_COUNTRY,
     );
 
     return this.companyRepository.save(company);
@@ -50,15 +56,17 @@ export class CreateCompanyUseCase {
       throw new BadRequestException(ERROR_CATALOG.TAX_ID_REQUIRED.message);
     }
 
-    if (!/^\d{2}-\d{8}-\d$/.test(command.taxId)) {
-      throw new BadRequestException(ERROR_CATALOG.INVALID_TAX_ID_FORMAT.message);
+    if (!isValidTaxId(command.taxId)) {
+      throw new BadRequestException(
+        ERROR_CATALOG.INVALID_TAX_ID_FORMAT.message.replace('NN-NNNNNNNN-N', TAX_ID_FORMAT),
+      );
     }
 
     if (!command.name || typeof command.name !== 'string' || !command.name.trim()) {
       throw new BadRequestException(ERROR_CATALOG.NAME_REQUIRED.message);
     }
 
-    if (!Object.values(CompanyType).includes(command.type)) {
+    if (!COMPANY_TYPES.includes(command.type)) {
       throw new BadRequestException(ERROR_CATALOG.INVALID_COMPANY_TYPE.message);
     }
 
