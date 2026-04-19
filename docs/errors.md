@@ -53,6 +53,11 @@ Definir un lenguaje comun para errores del sistema con una respuesta uniforme en
 - Mensaje: `Failed to fetch companies with transfers in the last month`
 - Uso: endpoint `GET /api/companies/with-transfers/last-month` ante fallas inesperadas de lectura
 
+### READINESS_PERSISTENCE_CHECK_FAILED
+- Estado: `503`
+- Mensaje: `Readiness check failed for persistence dependency`
+- Uso: endpoint `GET /api/health/ready` cuando falla la verificacion de persistencia
+
 ### PERSISTENCE_READ_FAILED
 - Estado: `503`
 - Mensaje: `Failed to read persisted data`

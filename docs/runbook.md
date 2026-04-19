@@ -24,6 +24,15 @@ curl -i http://localhost:3000/api/health
 
 Esperado: `200 OK`
 
+### Verificacion de readiness
+
+```bash
+curl -i http://localhost:3000/api/health/ready
+```
+
+Esperado: `200 OK` con `checks.persistence: up`.
+Si la dependencia de persistencia falla, esperado: `503 Service Unavailable`.
+
 ## Almacenamiento de datos
 
 La app usa archivos JSON para persistencia a traves del adaptador de almacenamiento en archivos.
@@ -40,6 +49,7 @@ La resolucion de rutas se controla con `DATA_DIR` cuando esta presente; si no, s
 - `GET /api/companies/joined-last-month`
 - `GET /api/companies/with-transfers/last-month`
 - `GET /api/health`
+- `GET /api/health/ready`
 
 ## Modelo de manejo de errores
 

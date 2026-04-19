@@ -51,6 +51,12 @@ export const ERROR_CATALOG = {
     status: 500,
     message: 'Failed to fetch companies with transfers in the last month',
   },
+  READINESS_PERSISTENCE_CHECK_FAILED: {
+    code: 'READINESS_PERSISTENCE_CHECK_FAILED',
+    status: 503,
+    message: 'Readiness check failed for persistence dependency',
+    retryable: true,
+  },
   PERSISTENCE_READ_FAILED: {
     code: 'PERSISTENCE_READ_FAILED',
     status: 503,
