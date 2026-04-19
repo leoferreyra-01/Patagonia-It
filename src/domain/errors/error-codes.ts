@@ -80,6 +80,11 @@ export const ERROR_CATALOG = {
     status: 409,
     message: 'Company with taxId %s already exists',
   },
+  COMPANY_ID_NOT_FOUND: {
+    code: 'COMPANY_ID_NOT_FOUND',
+    status: 404,
+    message: 'Company with id %s not found',
+  },
   UNEXPECTED_CREATE_COMPANY_ERROR: {
     code: 'UNEXPECTED_CREATE_COMPANY_ERROR',
     status: 500,
