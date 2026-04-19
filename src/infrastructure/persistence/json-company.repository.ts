@@ -1,6 +1,9 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { Company } from '../../domain/entities/company.entity';
-import { CompanyRepository } from '../../domain/ports/company-repository.port';
+import {
+  CompanyRepository,
+  PaginationOptions,
+} from '../../domain/ports/company-repository.port';
 import { FileStorage } from './file-storage';
 
 type CompanyRecord = {
@@ -47,6 +50,37 @@ export class JsonCompanyRepository implements CompanyRepository {
         return registrationDate >= startDate && registrationDate <= endDate;
       })
       .map((record) => this.toDomain(record));
+  }
+
+  async findByType(
+    type: Company['type'],
+    options: PaginationOptions,
+  ): Promise<{ items: Company[]; total: number }> {
+    const records = await this.storage.readArray<CompanyRecord>(this.filePath);
+    const filtered = records.filter((record) => record.type === type);
+
+    const items = filtered
+      .slice(options.offset, options.offset + options.limit)
+      .map((record) => this.toDomain(record));
+
+    return { items, total: filtered.length };
+  }
+
+  async findByTypeAndCountry(
+    type: Company['type'],
+    country: string,
+    options: PaginationOptions,
+  ): Promise<{ items: Company[]; total: number }> {
+    const records = await this.storage.readArray<CompanyRecord>(this.filePath);
+    const filtered = records.filter(
+      (record) => record.type === type && record.country === country,
+    );
+
+    const items = filtered
+      .slice(options.offset, options.offset + options.limit)
+      .map((record) => this.toDomain(record));
+
+    return { items, total: filtered.length };
   }
 
   async save(company: Company): Promise<Company> {

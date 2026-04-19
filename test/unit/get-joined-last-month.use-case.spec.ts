@@ -15,6 +15,8 @@ const makeRepository = (companies: Company[]): CompanyRepository => ({
   findById: jest.fn(),
   findByTaxId: jest.fn(),
   findByRegistrationDateRange: jest.fn(async () => companies),
+  findByType: jest.fn(),
+  findByTypeAndCountry: jest.fn(),
   save: jest.fn(),
   update: jest.fn(),
   delete: jest.fn(),

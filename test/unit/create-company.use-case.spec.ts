@@ -9,6 +9,8 @@ describe('CreateCompanyUseCase', () => {
     findById: jest.fn(),
     findByTaxId: jest.fn(async () => null),
     findByRegistrationDateRange: jest.fn(),
+    findByType: jest.fn(),
+    findByTypeAndCountry: jest.fn(),
     save: jest.fn(async (company: Company) => company),
     update: jest.fn(),
     delete: jest.fn(),

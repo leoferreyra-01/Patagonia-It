@@ -1,17 +1,31 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+import { IsNotEmpty, IsEnum, Matches, IsOptional, MaxLength } from 'class-validator';
 import { CompanyType } from '../../../domain/entities/company.entity';
+import { TAX_ID_REGEX, TAX_ID_FORMAT } from '../../../domain/constants/company.constants';
 
 export class CreateCompanyRequestDto {
   @ApiProperty({ example: '30-99999999-7' })
+  @IsNotEmpty({ message: 'taxId is required' })
+  @Matches(TAX_ID_REGEX, {
+    message: `taxId must match format ${TAX_ID_FORMAT}`,
+  })
   taxId!: string;
 
   @ApiProperty({ example: 'Acme SA' })
+  @IsNotEmpty({ message: 'name is required' })
+  @MaxLength(255, { message: 'name must not exceed 255 characters' })
   name!: string;
 
   @ApiProperty({ enum: CompanyType, example: CompanyType.PYME })
+  @IsNotEmpty({ message: 'type is required' })
+  @IsEnum(CompanyType, {
+    message: `type must be one of: ${Object.values(CompanyType).join(', ')}`,
+  })
   type!: CompanyType;
 
   @ApiPropertyOptional({ example: 'AR', default: 'AR' })
+  @IsOptional()
+  @MaxLength(2, { message: 'country must be a 2-letter code' })
   country?: string;
 }
 

@@ -2,6 +2,7 @@ import { Module } from '@nestjs/common';
 import { CreateCompanyUseCase } from '../../../application/use-cases/create-company.use-case';
 import { GetJoinedLastMonthUseCase } from '../../../application/use-cases/get-joined-last-month.use-case';
 import { GetCompaniesWithTransfersLastMonthUseCase } from '../../../application/use-cases/get-companies-with-transfers-last-month.use-case';
+import { ListCompaniesUseCase } from '../../../application/use-cases/list-companies.use-case';
 import { COMPANY_REPOSITORY } from '../../../domain/ports/company-repository.port';
 import { TRANSFER_REPOSITORY } from '../../../domain/ports/transfer-repository.port';
 import { CompaniesController } from '../controllers/companies.controller';
@@ -18,6 +19,7 @@ import { JsonTransferRepository } from '../../persistence/json-transfer.reposito
     GetCompaniesWithTransfersLastMonthUseCase,
     GetJoinedLastMonthUseCase,
     CreateCompanyUseCase,
+    ListCompaniesUseCase,
     {
       provide: COMPANY_REPOSITORY,
       useExisting: JsonCompanyRepository,
