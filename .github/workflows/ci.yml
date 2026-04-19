@@ -63,6 +63,14 @@ jobs:
       - name: Run coverage
         run: npm run test:cov
 
+      - name: Upload coverage artifact
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: coverage-report
+          path: coverage/
+          if-no-files-found: warn
+
   release-gate:
     needs: test
     runs-on: ubuntu-latest
